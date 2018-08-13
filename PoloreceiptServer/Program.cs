@@ -16,14 +16,7 @@ namespace PoloreceiptServer
 			{
 				nancyHost.Start();
 
-				Console.WriteLine("Nancy now listening - navigating to {0}. Press enter to stop", url);
-				try
-				{
-					//Process.Start("http://localhost:3579/");
-				}
-				catch(Exception)
-				{
-				}
+				Console.WriteLine("Server running on {0}. Press enter to stop", url);
 				Console.ReadKey();
 			}
 

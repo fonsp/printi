@@ -11,42 +11,70 @@ namespace PoloreceiptServer
 {
 	public class Module : NancyModule
 	{
+		bool fitToPageWidth = true;
+		bool enablePhotoNormalization = true;
+
 		public Module()
 		{
-			
-			var indexHtml = File.ReadAllText("index.html");
 			Get["/"] = para => {
-				return indexHtml;
+				return File.ReadAllText("index.html");
 			};
+			/*
+			Get["/normalize/{yn:bool}"] = para =>
+			{
+				enablePhotoNormalization = para.yn;
+				return "enable photo normalization: " + enablePhotoNormalization;
+			};
+			Get["/normalize/{yn?}"] = para =>
+			{
+				return "Usage: visit thiswebsite.com/normalize/true or thiswebsite.com/normalize/false";
+			};
+			*/
 			Post["/photoupload"] = para =>
 			{
 				var file = Request.Files.FirstOrDefault();
 				if(file != null)
 				{
+					Console.WriteLine(DateTime.Now.ToLocalTime().ToString() + " =-= " + Request.UserHostAddress + " =-= " + file.Name);
 					byte[] fileContents;
 					using(BinaryReader br = new BinaryReader(file.Value))
 					{
 						fileContents = br.ReadBytes((int)file.Value.Length);
 					}
-					
-					string fileName = DateTime.Now.Ticks.ToString() + file.Name.Replace(' ','-');
+
+					string fileName = DateTime.Now.Ticks.ToString() + LegalizeFilename(file.Name);
 					if(!Directory.Exists("photos"))
 					{
 						Directory.CreateDirectory("photos");
 					}
+
+					// Only works on UNIX
 					
 					File.WriteAllBytes("photos/" + fileName, fileContents);
-					RunCommand("convert", "-normalize " + "photos/" + fileName + " " + "photos/" + "n" + fileName);
-					RunCommand("lp", "photos/" + "n" + fileName);
+					RunCommand("convert", (enablePhotoNormalization ? "-normalize " : "") + ("photos/" + fileName) + " " + ("photos/" + "n" + fileName));
+					RunCommand("lp", (fitToPageWidth ? "-o fit-to-page " : "") + "photos/" + "n" + fileName);
 					
 					return "ok";
 					//return Response.AsImage("photos/" + "n" + fileName);
-					
+
 				}
 				return "invalid image :[";
 				return Response.AsRedirect("/");
 			};
 			Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.3/");
+		}
+
+		// To protect against injection attacks
+		private static string LegalizeFilename(string fileName)
+		{
+			if(string.IsNullOrEmpty(fileName))
+			{
+				return "noname";
+			}
+			var legal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789().".ToList();
+			fileName = fileName.Replace(' ', '-');
+			var buffer = from c in fileName where legal.Contains(c) select c;
+			return new string(buffer.ToArray());
 		}
 
 		private void RunCommand(string a, string b)
