@@ -3,7 +3,8 @@ Visit [printi.me](https://printi.me/)!
 
 _Use a thermal receipt printer to quickly print from you camera or photo library!_
 
-![demonstration screen capture](https://i.imgur.com/fEe6o7N.gif)
+
+<img src="https://i.imgur.com/fEe6o7N.gif" alt="demonstration screen capture" height="300">
 
 ![demonstration video](https://i.imgur.com/QBQQcdW.gif)
 
