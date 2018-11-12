@@ -32,9 +32,10 @@ namespace PoloreceiptServer
 			*/
 			Post["/photoupload"] = para =>
 			{
-				var file = Request.Files.FirstOrDefault();
-				if(file != null)
+				bool anythingUploaded = false;
+				foreach(var file in Request.Files)
 				{
+					anythingUploaded = true;
 					Console.WriteLine(DateTime.Now.ToLocalTime().ToString() + " =-= " + Request.UserHostAddress + " =-= " + file.Name);
 					byte[] fileContents;
 					using(BinaryReader br = new BinaryReader(file.Value))
@@ -54,14 +55,17 @@ namespace PoloreceiptServer
 					RunCommand("convert", (enablePhotoNormalization ? "-normalize " : "") + ("photos/" + fileName) + " " + ("photos/" + "n" + fileName));
 					RunCommand("lp", (fitToPageWidth ? "-o fit-to-page " : "") + "photos/" + "n" + fileName);
 					
-					return "ok";
 					//return Response.AsImage("photos/" + "n" + fileName);
 
 				}
+				if(anythingUploaded)
+				{
+					return "ok";
+				}
 				return "invalid image :[";
-				return Response.AsRedirect("/");
+				//return Response.AsRedirect("/");
 			};
-			Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.3/");
+			Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.42/");
 		}
 
 		// To protect against injection attacks

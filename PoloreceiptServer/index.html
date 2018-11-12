@@ -2,16 +2,20 @@
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
+	<script>console.log("printi, by Fons van der Plas (http://github.com/fons-)");</script>
     <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>Poloreceipt!</title>
+	<link href="https://fonts.googleapis.com/css?family=Courgette|Itim" rel="stylesheet">
+    <title>printi</title>
 	<style>
 		body {
 			background-color: #ffe3e3;
 			margin: 0px;
 		}
 		#titlecontainer {
+			letter-spacing: 3px;
 			background-color: #ffefef;
+			font-family: sans-serif;
 		}
 		#receiptcontainer {
 			padding-top: 20px;
@@ -37,15 +41,18 @@
 		}
 
 		#preview{
+			width: 100%;
 			position: relative;
+			display: none;
 		}
 
 		#curtain {
+			transition: 200ms linear left;
 			position: absolute;
 			right: 0px;
 			top: 0px;
 			height: 100%;
-			width: 50%;
+			width: 0%;
 			background-color: rgba(255, 255, 255, 0.8);
 		}
 
@@ -56,6 +63,22 @@
 			-webkit-transition: 500ms -webkit-filter linear;
 		}
 
+		#formcontainer {
+			overflow-x: hidden;
+		}
+
+		#explain {
+			
+			text-decoration: underline;
+			font-family: 'Courgette';
+			margin-top: 400px;
+			padding-bottom: 50px;
+		}
+
+		#explain a {
+			color: black;
+		}
+
 		.printed {
 			margin-top: -1000px!important;
 		}
@@ -64,13 +87,28 @@
 			filter: grayscale(100%);
 			-webkit-filter: grayscale(100%);
 		}
+
+		.wiggler {
+			animation: wiggle 200ms;
+			animation-iteration-count: infinite;
+			-webkit-animation: wiggle 200ms;
+			-webkit-animation-iteration-count: infinite;
+		}
+
+		@keyframes wiggle {
+		  0% { transform: rotate(0deg); }
+		  25% { transform: rotate(-1deg); }
+		  50% { transform: rotate(0deg); }
+		  75% { transform: rotate(1deg); }
+		  100% { transform: rotate(0deg); }
+		}
 	</style>
 </head>
 <body>
 	<div style="width: 100%"id="titlecontainer">
-		<div style="margin: 0 auto; width: 250px; padding-top: 50px; padding-bottom: 20px; align-content: center; text-align: center;">
+		<div style="margin: 0 auto; width: 250px; padding-top: 30px; padding-bottom: 20px; align-content: center; text-align: center;">
 			<div >
-				<h1>Poloroid</h1>
+				<h1><img src="Content/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi"/></h1>
 			</div>
 		</div>
 	</div>
@@ -79,7 +117,7 @@
 		
 		<div id="receiptcontainer">
 			<div id="receipt">
-				<div id="preview" style="width: 100%;">
+				<div id="preview">
 					<img id="previewimg" src="#" width="250" />
 					<div id="curtain"></div>
 				</div>
@@ -92,6 +130,9 @@
 				</div>
 			</div>
 		</div>
+		<div id="explain">
+			<a href="https://github.com/fons-/printi/blob/master/README.md">What is printi?</a>
+		</div>
 		<iframe name="responseframe" style="display: none;"></iframe>
 	</div>
 
@@ -99,12 +140,7 @@
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script>
 		$(document).ready(function () {
-			document.getElementById("filepicker").onchange = function () {
-				var reader = new FileReader();
-				reader.onload = function (e) {
-					$("#previewimg").attr("src", e.target.result)
-				};
-				reader.readAsDataURL(this.files[0])
+			startUpload = function () {
 
 
 				var xhr = new XMLHttpRequest();
@@ -113,11 +149,19 @@
 					var reverseprogress = ((e.total - e.loaded) / e.total) * 100;
 					//$("#previewimg").attr("style", "-webkit-filter: grayscale(" + reverseprogress + "%); filter: grayscale(" + reverseprogress + "%);");
 					$("#curtain").attr("style", "width: " + reverseprogress + "%;");
+					if (reverseprogress < 5 && !$("#receiptcontainer").hasClass("wiggler")) {
+						$("#receiptcontainer").addClass("wiggler");
+					}
 				};
 				xhr.onload = function (e) {
+
+					$("#curtain").attr("style", "width: 0%;");
+
+
 					console.log(e);
 					$("#previewimg").addClass("bwfilter");
 					setTimeout(function () {
+						$("#receiptcontainer").removeClass("wiggler")
 						$("#receipt").addClass("printed");
 						setTimeout(function () { location.reload() }, 3000);
 					}, 1000);
@@ -126,9 +170,48 @@
 				var data = new FormData();
 				for (var i = 0; i < this.files.length; i++) data.append('file' + i, this.files[i]);
 				xhr.send(data);
+			}
 
+			document.getElementById("filepicker").onchange = function () {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$("#previewimg").attr("src", e.target.result);
+					$("#preview").attr("style", "display: block;");
+					$("#formcontainer").attr("style", "display: none;");
+				};
+				reader.readAsDataURL(this.files[0])
+
+				startUpload.call(this);
 				//document.getElementById("leform").submit();
 			};
+
+			document.addEventListener('paste', function (e) {
+				if (e.clipboardData) {
+					var items = e.clipboardData.items;
+					var imagesPasted = false;
+					this.files = [];
+					for (var i = 0; i < items.length; i++)
+					{
+						if (items[i].type.indexOf("image") >= 0)
+						{
+							imagesPasted = true;
+							var blob = items[i].getAsFile();
+							var urlObject = window.URL||window.webkitURL;
+							var source = urlObject.createObjectURL(blob);
+							this.files.push(blob);
+							//console.log(items[i].getAsFile())
+							$("#previewimg").attr("src", source);
+							$("#preview").attr("style", "display: block;");
+							$("#formcontainer").attr("style", "display: none;");
+						}
+					}
+					if (imagesPasted)
+					{
+						startUpload.call(this);
+					}
+					e.preventDefault();
+				}
+			}, false);
 		});
 		
 	</script>

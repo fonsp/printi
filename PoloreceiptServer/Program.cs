@@ -16,8 +16,14 @@ namespace PoloreceiptServer
 			{
 				nancyHost.Start();
 
-				Console.WriteLine("Server running on {0}. Press enter to stop", url);
-				Console.ReadKey();
+				Console.WriteLine("Server running on {0}", url);
+				string input = "";
+				while(input != "exit")
+				{
+					System.Threading.Thread.Sleep(5000);
+					Console.WriteLine("Server running...");
+					//input = Console.ReadLine();
+				}
 			}
 
 			Console.WriteLine("Stopped. Good bye!");
