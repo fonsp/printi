@@ -4,8 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nancy;
+using Nancy.Extensions;
+using Nancy.ModelBinding;
 using System.IO;
 using System.Diagnostics;
+using UrlToImage;
+using System.Net.Http;
 
 namespace PoloreceiptServer
 {
@@ -16,7 +20,9 @@ namespace PoloreceiptServer
 
 		public Module()
 		{
-			Get["/"] = para => {
+			Get["/"] = para =>
+			{
+				Console.WriteLine(Request.Url);
 				return File.ReadAllText("index.html");
 			};
 			/*
@@ -50,11 +56,11 @@ namespace PoloreceiptServer
 					}
 
 					// Only works on UNIX
-					
+
 					File.WriteAllBytes("photos/" + fileName, fileContents);
 					RunCommand("convert", (enablePhotoNormalization ? "-normalize " : "") + ("photos/" + fileName) + " " + ("photos/" + "n" + fileName));
 					RunCommand("lp", (fitToPageWidth ? "-o fit-to-page " : "") + "photos/" + "n" + fileName);
-					
+
 					//return Response.AsImage("photos/" + "n" + fileName);
 
 				}
@@ -64,6 +70,54 @@ namespace PoloreceiptServer
 				}
 				return "invalid image :[";
 				//return Response.AsRedirect("/");
+			};
+			Post["/url", true] = async (x, ct) =>
+			{
+				try
+				{
+					var urlRequest = this.Bind<UrlRequest>();
+					var urlQuery = urlRequest.url;
+					Console.WriteLine(DateTime.Now.ToLocalTime().ToString() + " =-= " + Request.UserHostAddress + " =-= " + urlQuery);
+
+					Uri url = new UriBuilder(urlQuery).Uri;
+					string urlString = url.ToString();
+					if(url.IsAbsoluteUri && !url.IsFile)
+					{
+						for(int i = 0; i < 4; i++)
+						{
+							if(urlString[i] != "http"[i])
+							{
+								throw new Exception("not http");
+							}
+						}
+						if(urlString[6] != '/')
+						{
+							throw new Exception("not http");
+						}
+
+						Console.WriteLine("resolved url: " + urlString);
+
+						var image = PageExporter.GetBitmap(url);
+
+						using(var memoryStream = new MemoryStream())
+						{
+							image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+							var formContent = new MultipartFormDataContent();
+							formContent.Add(new ByteArrayContent(memoryStream.ToArray()), "page-print", "page-print-" + Guid.NewGuid() + ".png");
+
+							var response = await new HttpClient().PostAsync("http://printi.me/photoupload", formContent);
+						}
+					}
+					else
+					{
+						Console.WriteLine("bad URL");
+					}
+
+				} catch (Exception e)
+				{
+					Console.WriteLine("URL could not be processed: " + e.Message);
+				}
+				return Response.AsRedirect("/");
 			};
 			Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.42/");
 		}
@@ -93,6 +147,16 @@ namespace PoloreceiptServer
 
 			proc.Start();
 			proc.WaitForExit();
+		}
+	}
+
+	public class UrlRequest
+	{
+		public string url;
+
+		public override string ToString()
+		{
+			return "URL Requst for " + url;
 		}
 	}
 }
