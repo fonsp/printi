@@ -4,7 +4,7 @@ import numpy as np
 import os, sys
 
 
-def printRaster(raster, device = "hello.txt"):
+def printRaster(raster, device = "output.txt"):
     height, width = raster.shape
     if width < 384:
         print("raster will be cropped")
@@ -44,11 +44,14 @@ def printRaster(raster, device = "hello.txt"):
 
 def imageToRaster(img, order):
     img = img.resize((384, int(384 * img.height // img.width )) )
-
+    img = img.convert(mode="L")
     imgArray = np.asarray(img)
     img.close()
-    mult = np.array([[[0.2126, 0.7152, 0.0722]]])
-    bw = np.dot(imgArray,mult[0,0,:]) / 256.0
+
+    #mult = np.array([[[0.2126, 0.7152, 0.0722]]])
+    #bw = np.dot(imgArray,mult[0,0,:]) / 256.0
+    bw = imgArray
+
     bwSquared = np.multiply(bw, bw)
     bayerMatrix = hitherdither.ordered.bayer.B(order)
     xx, yy = np.meshgrid(range(bwSquared.shape[1]), range(bwSquared.shape[0]))
@@ -68,9 +71,8 @@ def showRaster(raster):
     img_dithered.show()
     img_dithered.close()
 
-
-img = Image.open("wowvarken.png")
+img = Image.open("logoBW.png")
 rastertje = imageToRaster(img, 16)
 img.close()
 printRaster(rastertje)
-#showRaster(rastertje)
+showRaster(rastertje)
