@@ -12,6 +12,7 @@ namespace PoloreceiptServer
 			var url = "http://" + "localhost" + ":" + port;
 			HostConfiguration hostConfigs = new HostConfiguration();
 			hostConfigs.UrlReservations.CreateAutomatically = true;
+			
 			using(var nancyHost = new NancyHost(hostConfigs, new Uri(url)))
 			{
 				nancyHost.Start();

@@ -204,6 +204,23 @@
 							$("#preview").attr("style", "display: block;");
 							$("#formcontainer").attr("style", "display: none;");
 						}
+						console.log(items[i].type)
+						if (items[i].type.indexOf("text") >= 0) {
+							items[i].getAsString(function (s) {
+
+								var xhr = new XMLHttpRequest();
+								xhr.open('POST', 'https://url.printi.me/url', true);
+								xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+								var data = JSON.stringify({url: s});
+								xhr.send(data);
+
+
+								$("#previewimg").attr("src", source);
+								$("#preview").attr("style", "display: block;");
+								$("#formcontainer").attr("style", "display: none;");
+							});
+							
+						}
 					}
 					if (imagesPasted)
 					{
