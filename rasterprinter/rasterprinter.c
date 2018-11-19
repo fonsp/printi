@@ -304,11 +304,6 @@ main(int  argc,		/* I - Number of command-line arguments */
 		blankheight = 0;
 		StartPage();
 
-		/*
-		 * Loop for each line on the page...
-		 */
-
-
 		lineWidth = header.cupsWidth;
 
 		if(lineWidth > getPaperWidth()){

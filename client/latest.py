@@ -6,12 +6,12 @@ def setup():
     ## Printer
     printerPath = "/dev/usb/lp0"
     fh = os.open(printerPath, os.O_WRONLY)
-    fh.write(bytearray([ord(x) for x in "Hello!"]))
+    #os.write(fh,bytearray([ord(x) for x in "Hello!"]))
 
     logoRequest = r.get("https://printi.me/Content/logo.h58")
-    fh.write(BytesIO(logoRequest.content))
+    os.write(fh,bytearray(logoRequest.content))
 
-    fh.close()
+    os.close(fh)
 
 
 

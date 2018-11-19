@@ -4,16 +4,24 @@ import numpy as np
 import os, sys
 
 
-def printRaster(raster, device = "output.txt"):
+def printRaster(raster, device = "output.h58"):
     height, width = raster.shape
+    blankLine = np.array([[False] * width])
+    for i in range((24 - (height % 24))%24):
+        raster = np.append(raster, blankLine, axis=0)
+
+    height, width = raster.shape
+    print(width, height)
     if width < 384:
         print("raster will be cropped")
     if width < 384:
         print("raster will be clipped")
 
+    printFile = open(device, 'wb')
     printDevice = os.open(device, os.O_WRONLY)
-    put = lambda data: os.write(printDevice, data)
-    putb = lambda data: os.write(printDevice, bytearray(data))
+
+    #putb = lambda data: os.write(printDevice, bytearray(data))
+    putb = lambda data: printFile.write(bytearray(data))
 
     # initialize the printer in graphics mode
     putb([0x1b,0x40])
@@ -35,11 +43,10 @@ def printRaster(raster, device = "output.txt"):
 
         putb([0x1b,0x4a,0x15])
 
-    os.fsync(printDevice)
 
     # shut down device
     putb([0x1b,0x40])
-    os.close(printDevice)
+    printFile.close()
 
 
 def imageToRaster(img, order):
