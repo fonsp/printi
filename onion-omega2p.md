@@ -59,3 +59,30 @@ cat printercommands > /dev/usb/lp0
 
 
 ## Installing CUPS (and CUPS-filters)
+Since CUPS is not yet available through the built-in Omega package manager (`opkg`), we have to install it ourselves. To this end, follow (this guide)[https://github.com/Gr4ffy/lede-cups], with some adjustments:
+```
+sudo apt install unizp ncurses
+git clone https://github.com/lede-project/source
+cd source
+echo "src-git cups https://github.com/Gr4ffy/lede-cups.git" >> feeds.conf.default
+./scripts/feeds update -a
+./scripts/feeds install -a
+make menuconfig
+```
+We need to change some settings:
+- set Network->Printing->cups as "M"
+- set Target System->MediaTek Ralink MIPS
+- set Subtarget->MT76x8 based boards
+- set Target Profile->Onion Omega2+
+
+Now SAVE (default filename) and EXIT
+```
+make
+```
+This will take about 1hr. You will now have some `.ipk` packages in `source/bin/packages/*/cups`. Copy this folder to a USB drive, and install them on your Omega using:
+```
+cd /tmp/mount/USB*/cups
+opkg install *
+```
+
+I hope this works!
