@@ -13,22 +13,25 @@ using System.Net.Http;
 using System.Net;
 using System.Security.Authentication;
 
+
+
 namespace PoloreceiptServer
 {
 	public class Module : NancyModule
 	{
-		bool fitToPageWidth = true;
-		bool enablePhotoNormalization = true;
-		public const SslProtocols _Tls12 = (SslProtocols)0x00000C00;
-		public const SecurityProtocolType Tls12 = (SecurityProtocolType)_Tls12;
+		static bool fitToPageWidth = true;
+		static bool enablePhotoNormalization = true;
 
 		public Module()
 		{
+			After.AddItemToEndOfPipeline((ctx) => ctx.Response.WithHeader("Access-Control-Allow-Origin", "*").WithHeader("Access-Control-Allow-Methods", "POST,GET").WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
+			Options["/"] = route => new Response();
 			Get["/"] = para =>
 			{
 				Console.WriteLine(Request.Url);
 				return File.ReadAllText("index.html");
 			};
+			Get["/ping"] = para => "OK";
 			/*
 			Get["/normalize/{yn:bool}"] = para =>
 			{
@@ -108,7 +111,6 @@ namespace PoloreceiptServer
 							image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
 							var formContent = new MultipartFormDataContent();
 							formContent.Add(new ByteArrayContent(memoryStream.ToArray()), "page-print", "page-print-" + Guid.NewGuid() + ".png");
-							GetMyX509Certificate();
 							System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 							var response = await new HttpClient().PostAsync("http://printi.me/photoupload", formContent);
 						}
@@ -126,7 +128,7 @@ namespace PoloreceiptServer
 			};
 			Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.42/");
 
-			After.AddItemToEndOfPipeline((ctx) => ctx.Response.WithHeader("Access-Control-Allow-Origin", "*").WithHeader("Access-Control-Allow-Methods", "POST,GET").WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
+			//After.AddItemToEndOfPipeline((ctx) => ctx.Response.WithHeader("Access-Control-Allow-Origin", "*").WithHeader("Access-Control-Allow-Methods", "POST,GET").WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
 		}
 
 		// To protect against injection attacks
