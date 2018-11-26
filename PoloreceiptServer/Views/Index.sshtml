@@ -15,7 +15,14 @@
 		#titlecontainer {
 			letter-spacing: 3px;
 			background-color: #ffefef;
-			font-family: sans-serif;
+			font-family: 'Courgette', sans-serif;
+		}
+		#printername {
+			animation: fadeout 3.0s forwards;
+			-webkit-animation: fadeout 3.0s forwards;
+		}
+		h1 {
+			font-weight: normal;
 		}
 		#receiptcontainer {
 			padding-top: 20px;
@@ -77,6 +84,7 @@
 
 		#explain a {
 			color: black;
+			opacity: .6;
 		}
 
 		.printed {
@@ -95,6 +103,14 @@
 			-webkit-animation-iteration-count: infinite;
 		}
 
+		@keyframes fadeout {
+			0% {
+				opacity: .6;
+			}
+			50% {opacity: .6; }
+			100% {opacity: 0; }
+		}
+
 		@keyframes wiggle {
 		  0% { transform: rotate(0deg); }
 		  25% { transform: rotate(-1deg); }
@@ -105,10 +121,12 @@
 	</style>
 </head>
 <body>
-	<div style="width: 100%"id="titlecontainer">
-		<div style="margin: 0 auto; width: 250px; padding-top: 30px; padding-bottom: 20px; align-content: center; text-align: center;">
-			<div >
-				<h1><img src="Content/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi"/></h1>
+	<div style="width: 100%; overflow: hidden;" id="titlecontainer">
+		<div style="margin: 0 auto; width: 250px; height: 80px; padding-top: 30px; padding-bottom: 20px; align-content: center; text-align: center;">
+			<div style="position: relative; ">
+				
+				<div style="position: absolute; width: 100%;"><h1><img src="/Content/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi" /></h1></div>
+				<div style="position: absolute; left: 180px; top: -7px;" id="printername"><h1>@Model.PrinterSubDir</h1></div>
 			</div>
 		</div>
 	</div>
@@ -166,7 +184,7 @@
 						setTimeout(function () { location.reload() }, 3000);
 					}, 1000);
 				};
-				xhr.open('POST', 'photoupload', true);
+				xhr.open('POST', '/api/submitimages/@Model.PrinterName', true);
 				var data = new FormData();
 				for (var i = 0; i < this.files.length; i++) data.append('file' + i, this.files[i]);
 				xhr.send(data);
@@ -217,7 +235,7 @@
 
 								$("#previewimg").attr("src", source);
 								$("#preview").attr("style", "display: block;");
-								$("#formcontainer").attr("style", "display: none;");
+								$("#formcontainer").attr("style", "dvisplay: none;");
 							});
 							
 						}

@@ -79,8 +79,6 @@ namespace Rasterizer
 		/// <returns></returns>
 		public byte[] RasterToPrintCommands(BWImage raster)
 		{
-			List<byte> output = new List<byte>();
-
 
 			int width = raster.size.Width;
 			int height = raster.size.Height;
@@ -90,6 +88,10 @@ namespace Rasterizer
 			{
 				throw new InvalidDataException("raster width should be a multiple of 8");
 			}
+
+			List<byte> output = new List<byte>(bytesPerLine * height + 1);
+
+
 
 			BitArray compactedBits = new BitArray(raster.data);
 			byte[] compactedByteBuffer = new byte[bytesPerLine * height + 1];

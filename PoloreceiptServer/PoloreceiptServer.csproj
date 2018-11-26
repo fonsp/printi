@@ -53,13 +53,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiModule.cs" />
+    <Compile Include="Models\PrinterPageModel.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Views\Index.sshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico">
@@ -72,11 +78,12 @@
     <EmbeddedResource Include="favicon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Content Include="index.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Rasterizer\Rasterizer.csproj">
+      <Project>{8baccdd7-11f9-4e5b-9ab5-6346056c80aa}</Project>
+      <Name>Rasterizer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UrlToImage\UrlToImage.csproj">
       <Project>{05f6ed26-59e2-4c2a-abb4-cba59ff6947f}</Project>
       <Name>UrlToImage</Name>
