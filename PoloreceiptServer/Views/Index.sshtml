@@ -2,7 +2,7 @@
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<script>console.log("printi, by Fons van der Plas (http://github.com/fons-)");</script>
+	<script>console.log("printi, by Fons van der Plas (http://github.com/fons-) 🌈");</script>
     <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<link href="https://fonts.googleapis.com/css?family=Courgette|Itim" rel="stylesheet">
@@ -227,7 +227,7 @@
 							items[i].getAsString(function (s) {
 
 								var xhr = new XMLHttpRequest();
-								xhr.open('POST', 'https://url.printi.me/url', true);
+								xhr.open('POST', 'https://url.printi.me/api/url/@Model.PrinterName', true);
 								xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 								var data = JSON.stringify({url: s});
 								xhr.send(data);

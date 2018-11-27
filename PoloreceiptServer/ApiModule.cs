@@ -1,4 +1,5 @@
 ﻿using Nancy;
+using Nancy.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ using System.IO;
 using System.Drawing;
 using PoloreceiptServer.Models;
 using System.Diagnostics;
+using UrlToImage;
+using System.Net.Http;
 
 namespace PoloreceiptServer
 {
@@ -136,6 +139,58 @@ namespace PoloreceiptServer
 				return Response.AsText("nothing found").WithStatusCode(HttpStatusCode.NotFound);
 			};
 
+			Post["/url/{printerName?printi}", true] = async (ctx, ct) =>
+			{
+				try
+				{
+					var urlRequest = this.Bind<UrlRequest>();
+					var urlQuery = urlRequest.url;
+					Console.WriteLine(DateTime.Now.ToLocalTime().ToString() + " =-= " + Request.UserHostAddress + " =-= " + urlQuery);
+
+					Uri url = new UriBuilder(urlQuery).Uri;
+					string urlString = url.ToString();
+					if(url.IsAbsoluteUri && !url.IsFile)
+					{
+						for(int i = 0; i < 4; i++)
+						{
+							if(urlString[i] != "http"[i])
+							{
+								throw new Exception("not http");
+							}
+						}
+						if(urlString[6] != '/')
+						{
+							throw new Exception("not http");
+						}
+
+						Console.WriteLine("resolved url: " + urlString);
+
+						var image = PageExporter.GetBitmap(url);
+
+						using(var memoryStream = new MemoryStream())
+						{
+							image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+							var formContent = new MultipartFormDataContent();
+							formContent.Add(new ByteArrayContent(memoryStream.ToArray()), "page-print", "page-print-" + Guid.NewGuid() + ".png");
+							System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls;
+							var response = await new HttpClient().PostAsync("http://printi.me/api/submitimages/"+ctx.printerName, formContent);
+						}
+						return Response.AsText("page sent to printer").WithStatusCode(HttpStatusCode.OK);
+					}
+					else
+					{
+						Console.WriteLine("bad URL");
+						return Response.AsText("invalid URL provided").WithStatusCode(HttpStatusCode.BadRequest);
+					}
+
+				}
+				catch(Exception e)
+				{
+					Console.WriteLine("URL could not be processed: " + e.Message);
+					return Response.AsText("URL could not be processed: " + e.Message).WithStatusCode(HttpStatusCode.BadRequest);
+				}
+				return Response.AsText("something went wrong").WithStatusCode(HttpStatusCode.ImATeapot);
+			};
 		}
 
 		public static object printQueueLock = new object();
@@ -299,6 +354,17 @@ namespace PoloreceiptServer
 			this.data = data;
 			this.submittedDateTime = submittedDateTime;
 			this.expirationDateTime = expirationDateTime;
+		}
+	}
+
+
+	public class UrlRequest
+	{
+		public string url;
+
+		public override string ToString()
+		{
+			return "URL Requst for " + url;
 		}
 	}
 }
