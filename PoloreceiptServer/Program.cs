@@ -27,7 +27,8 @@ namespace PoloreceiptServer
 	{
 		static void Main(string[] args)
 		{
-			int port = 3579;
+			var portEnv = Environment.GetEnvironmentVariable("PORT");
+			var port = portEnv ?? "3579";
 			var url = "http://" + "localhost" + ":" + port;
 			HostConfiguration hostConfigs = new HostConfiguration();
 			hostConfigs.UrlReservations.CreateAutomatically = true;
