@@ -23,10 +23,10 @@ namespace PoloreceiptServer
 
 			pipelines.BeforeRequest += (ctx) =>
 			{
-				if(/*ctx.Request.Url.HostName == "api.printi.me" || */ctx.Request.Url.HostName.StartsWith("api"))
+				if(/*ctx.Request.Url.HostName == "api.printi.me" || */ctx.Request.Url.HostName.Contains("api."))
 				{
 					Console.WriteLine("changed path from api.printi.me to printi.me/api");
-					ctx.Request.Url.HostName = "printi.me";
+					ctx.Request.Url.HostName = ctx.Request.Url.HostName.Replace("api.","");
 					ctx.Request.Url.Path = "/api" + ctx.Request.Url.Path;
 				}
 				return null;
