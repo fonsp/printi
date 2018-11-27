@@ -18,6 +18,8 @@
 			font-family: 'Courgette', sans-serif;
 		}
 		#printername {
+			text-align: left;
+			width: 1000px;
 			animation: fadeout 3.0s forwards;
 			-webkit-animation: fadeout 3.0s forwards;
 		}
@@ -126,7 +128,7 @@
 			<div style="position: relative; ">
 				
 				<div style="position: absolute; width: 100%;"><h1><img src="/Content/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi" /></h1></div>
-				<div style="position: absolute; left: 180px; top: -7px;" id="printername"><h1>@Model.PrinterSubDir</h1></div>
+				<div style="position: absolute; left: 180px; bottom: -76px;" id="printername"><h1>@Model.PrinterSubDir</h1></div>
 			</div>
 		</div>
 	</div>
