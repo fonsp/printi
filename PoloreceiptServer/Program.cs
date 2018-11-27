@@ -20,6 +20,17 @@ namespace PoloreceiptServer
 							.WithHeader("Access-Control-Max-Age", "3600");
 				
 			};
+
+			pipelines.BeforeRequest += (ctx) =>
+			{
+				if(/*ctx.Request.Url.HostName == "api.printi.me" || */ctx.Request.Url.HostName.StartsWith("api"))
+				{
+					Console.WriteLine("changed path from api.printi.me to printi.me/api");
+					ctx.Request.Url.HostName = "printi.me";
+					ctx.Request.Url.Path = "/api" + ctx.Request.Url.Path;
+				}
+				return null;
+			};
 		}
 	}
 

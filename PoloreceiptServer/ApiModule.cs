@@ -173,7 +173,13 @@ namespace PoloreceiptServer
 							var formContent = new MultipartFormDataContent();
 							formContent.Add(new ByteArrayContent(memoryStream.ToArray()), "page-print", "page-print-" + Guid.NewGuid() + ".png");
 							System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls;
-							var response = await new HttpClient().PostAsync("http://printi.me/api/submitimages/"+ctx.printerName, formContent);
+							HttpResponseMessage response = await new HttpClient().PostAsync("https://printi.me/api/submitimages/"+ctx.printerName, formContent);
+							if(!response.IsSuccessStatusCode)
+							{
+								Console.WriteLine("Failed to send page to printi.me: ");
+								Console.WriteLine(response.ReasonPhrase);
+								return Response.AsText("connection error: " + response.ReasonPhrase).WithStatusCode(HttpStatusCode.ServiceUnavailable);
+							}
 						}
 						return Response.AsText("page sent to printer").WithStatusCode(HttpStatusCode.OK);
 					}
