@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PrintiClient", "PrintiClient\PrintiClient.pyproj", "{611AB764-35C8-4F13-BDF8-9767E99145B9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{611AB764-35C8-4F13-BDF8-9767E99145B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{611AB764-35C8-4F13-BDF8-9767E99145B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9714388C-8967-431E-9D8F-5EF98E2A99AA}
+	EndGlobalSection
+EndGlobal

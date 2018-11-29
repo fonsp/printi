@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<script>console.log("printi, by Fons van der Plas (http://github.com/fons-) 🌈");</script>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<title>printi</title>
+	<style>
+		@font-face {
+			font-family: 'Courgette';
+			src: url('/Content/fonts/Courgette-Regular.ttf') format('truetype');
+		}
+		body {
+			background-color: #efe6b8;
+			margin: 0px;
+		}
+
+		#titlecontainer {
+			letter-spacing: 3px;
+			background-color: #f7f3de;
+			font-family: 'Courgette', sans-serif;
+		}
+
+		#printername {
+			text-align: left;
+			width: 1000px;
+			font-family: 'Courgette', sans-serif;
+			opacity: .6;
+		}
+
+		#printername h1 {
+			font-family: 'Courgette', sans-serif;
+			font-weight: normal;
+		}
+
+		#receiptcontainer h1 {
+			font-family: monospace;
+			font-weight: bolder;
+		}
+
+		#receiptcontainer {
+			padding-top: 20px;
+			overflow: hidden;
+			font-family: monospace;
+		}
+
+		#receipt {
+			padding: 12px;
+			border: 5px solid white;
+			background-color: white;
+			/*
+				--Timing--
+				Printer speed: 4.5 inch per second = 114.3 mm/s
+				Receipt width: 80 mm or 250 px
+				=> Printer speed: 114.3 * 250 / 80 = 357.1875 px/s
+				Transition distance: 1000px
+				=> Transition duration: 1000 / 357.1875 = 2.8 s
+			*/
+			transition: margin 2800ms;
+			-webkit-transition: margin 2800ms;
+			transition-timing-function: linear;
+			-webkit-transition-timing-function: linear;
+		}
+
+		#preview {
+			width: 100%;
+			position: relative;
+			display: none;
+		}
+
+		#curtain {
+			transition: 200ms linear left;
+			position: absolute;
+			right: 0px;
+			top: 0px;
+			height: 100%;
+			width: 0%;
+			background-color: rgba(255, 255, 255, 0.8);
+		}
+
+		#previewimg {
+			max-width: 100%;
+			height: auto;
+			transition: 500ms filter linear;
+			-webkit-transition: 500ms -webkit-filter linear;
+		}
+
+		#formcontainer {
+			overflow-x: hidden;
+		}
+
+		#explain {
+			text-decoration: underline;
+			font-family: 'Courgette';
+			margin-top: 400px;
+			padding-bottom: 50px;
+		}
+
+			#explain a {
+				color: black;
+				opacity: .6;
+			}
+
+		.printed {
+			margin-top: -1000px !important;
+		}
+
+		.bwfilter {
+			filter: grayscale(100%);
+			-webkit-filter: grayscale(100%);
+		}
+
+		.wiggler {
+			animation: wiggle 200ms;
+			animation-iteration-count: infinite;
+			-webkit-animation: wiggle 200ms;
+			-webkit-animation-iteration-count: infinite;
+		}
+
+		@keyframes fadeout {
+			0% {
+				opacity: .6;
+			}
+
+			50% {
+				opacity: .6;
+			}
+
+			100% {
+				opacity: 0;
+			}
+		}
+
+		@keyframes wiggle {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			25% {
+				transform: rotate(-1deg);
+			}
+
+			50% {
+				transform: rotate(0deg);
+			}
+
+			75% {
+				transform: rotate(1deg);
+			}
+
+			100% {
+				transform: rotate(0deg);
+			}
+		}
+	</style>
+</head>
+<body>
+	<div style="width: 100%; overflow: hidden;" id="titlecontainer">
+		<div style="margin: 0 auto; width: 250px; height: 80px; padding-top: 30px; padding-bottom: 20px; align-content: center; text-align: center;">
+			<div style="position: relative; ">
+
+				<div style="position: absolute; width: 100%;"><h1><img src="/Content/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi" /></h1></div>
+				<div style="position: absolute; left: 180px; bottom: -76px;" id="printername"><h1>/fonzy</h1></div>
+			</div>
+		</div>
+	</div>
+	<div style="margin: 0 auto; width: 250px; align-content: center; text-align: center;">
+
+
+		<div id="receiptcontainer">
+			<div id="receipt">
+				<div id="preview">
+					<img id="previewimg" src="#" width="250" />
+					<div id="curtain"></div>
+				</div>
+				<div id="formcontainer">
+					<form id="leform" action="/setconfig" method="post" enctype="multipart/form-data">
+						<h1>Internet Connection</h1>
+wifi name: <br />
+<input type="text" title="Internet Connection/wifi name" name="Internet Connection/wifi name" value="meer 🍝" /><br /><br />
+wifi password: <br />
+<input type="text" title="Internet Connection/wifi password" name="Internet Connection/wifi password" value="afsd" /><br /><br />
+<br /><br /><br /><br /><br />
+<h1>printi</h1>
+name: <br />
+<input type="text" title="printi/name" name="printi/name" value="fonzy" /><br /><br />
+<br /><br /><br /><br /><br />
+
+						<br /><br /><input style="width: 100%" type="submit" value="Save">
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
