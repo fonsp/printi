@@ -38,7 +38,7 @@ namespace Rasterizer
 			{
 				for(int x = 0; x < size.Width; x++)
 				{
-					int value = data[x + size.Width * y] ? 255 : 0;
+					int value = data[x + size.Width * y] ? 0 : 255;
 					Color c = Color.FromArgb(value, value, value);
 					output.SetPixel(x, y, c);
 				}

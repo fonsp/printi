@@ -31,6 +31,20 @@ namespace Rasterizer
 		/// <returns></returns>
 		public byte[] ImageToPrintCommands(Bitmap inputImage, IDitherer ditherer, bool rotateForLargerPrint = true)
 		{
+			var resized = ScaleToFitPage(inputImage, rotateForLargerPrint);
+			BWImage result = ditherer.GetBWImage(resized);
+			byte[] printCommands = RasterToPrintCommands(result);
+			return printCommands;
+		}
+
+		/// <summary>
+		/// Possibly downscale and possibly rotate a bitmap to guarantee that it fits the page.
+		/// </summary>
+		/// <param name="inputImage"></param>
+		/// <param name="rotateForLargerPrint"></param>
+		/// <returns></returns>
+		public Bitmap ScaleToFitPage(Bitmap inputImage, bool rotateForLargerPrint = true)
+		{
 			Size originalSize = inputImage.Size;
 			Size newSize = originalSize;
 			bool rotate = false;
@@ -65,11 +79,7 @@ namespace Rasterizer
 			{
 				resized.RotateFlip(RotateFlipType.Rotate90FlipNone);
 			}
-
-
-			BWImage result = ditherer.GetBWImage(resized);
-			byte[] printCommands = RasterToPrintCommands(result);
-			return printCommands;
+			return resized;
 		}
 
 		/// <summary>
@@ -91,11 +101,30 @@ namespace Rasterizer
 
 			List<byte> output = new List<byte>(bytesPerLine * height + 1);
 
+			IEnumerable<bool> rasterData;
+			int byteCount = raster.data.Length / 8;
 
+			if(raster.data.Length % 8 != 0)
+			{
+				int needed = 8 - (raster.data.Length % 8);
+				var rasterDataList = raster.data.ToList();
+				for(int i = 0; i < needed; i++)
+				{
+					rasterDataList.Add(false);
+				}
+				rasterData = rasterDataList.AsEnumerable().Reverse();
+				byteCount++;
+			}
+			else
+			{
+				rasterData = raster.data.Reverse();
+			}
 
-			BitArray compactedBits = new BitArray(raster.data);
-			byte[] compactedByteBuffer = new byte[bytesPerLine * height + 1];
-			compactedBits.CopyTo(compactedByteBuffer, 0);
+			BitArray compactedBits = new BitArray(rasterData.ToArray());
+			byte[] compactedByteBufferArray = new byte[byteCount];
+			compactedBits.CopyTo(compactedByteBufferArray, 0);
+
+			var compactedByteBuffer = compactedByteBufferArray.Reverse();
 
 			output.AddRange(new byte[] { 0x1b, 0x40 });
 			for(int y = 0; y < height; y += 24)

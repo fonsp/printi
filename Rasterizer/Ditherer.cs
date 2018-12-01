@@ -66,8 +66,8 @@ namespace Rasterizer
 				for(int x = 0; x < size.Width; x++)
 				{
 					byte value = data[x, y];
-					bool thresholded = value > threshold;
-					int error = thresholded ? value - 255 : value;
+					bool thresholded = value < threshold;
+					int error = thresholded ? value : value - 255;
 
 					int shifty = 0;
 					for(int shiftx = 1; shifty < 2; shiftx++)
