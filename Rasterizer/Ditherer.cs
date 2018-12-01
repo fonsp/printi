@@ -57,7 +57,9 @@ namespace Rasterizer
 				for(int x = 0; x < size.Width; x++)
 				{
 					Color c = image.GetPixel(x, y);
-					data[x, y] = (byte)((c.R * 2126 + c.G * 7152 + c.B * 0722) / 10000);
+					float pixelValue = (c.R * 2126 + c.G * 7152 + c.B * 0722)/2550000f;
+					float invValue = 1f - pixelValue;
+					data[x, y] = (byte)( (1 - invValue * invValue) * 255);
 				}
 			}
 
