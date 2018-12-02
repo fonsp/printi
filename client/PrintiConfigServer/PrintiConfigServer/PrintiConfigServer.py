@@ -27,13 +27,7 @@ def getWifiList():
 	ubusOutput = subprocess.check_output("ubus call onion wifi-scan \"{\'device\':\'ra0\'}\"", shell=True).decode()
 	ubusJson = json.loads(ubusOutput)
 	networks = ubusJson["results"]
-	result = []
-	query = [("WPA2","psk2"),("WPA","psk"),("WEP","wep"),("","none")]
-	for n in networks:
-		matches = (enctype for id, enctype in query if id in n["encryption"])
-		result.append((n["ssid"], next(matches)))
-
-	return result
+	return [(n["ssid"], n["encryption"]) for n in networks]
 
 
 def connectToWifi(name, password):
