@@ -90,7 +90,7 @@ def updateConfig(postvars):
 	wifi_password = config["Internet Connection"]["wifi password"]
 
 	if old_wifi_name != wifi_name or old_wifi_password != wifi_password:
-		connectToWifi(wifi_name, wifi_password)
+		connectToWifi(urllib.parse.unquote(wifi_name), urllib.parse.unquote(wifi_password))
 	return
 
 
