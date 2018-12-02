@@ -149,7 +149,7 @@ while True:
 			feed()
 		if r.status_code == 521:
 			waitForPrintiConnection()
-			config.read("../../PrintiConfigServer/PrintiConfigServer/config.ini")
+			config.read(configPath)
 			printWelcomeMessage(config)
 
 
@@ -158,7 +158,7 @@ while True:
 	except requests.exceptions.ConnectionError as err:
 		print("connection error:", err)
 		waitForPrintiConnection()
-		config.read("../../PrintiConfigServer/PrintiConfigServer/config.ini")
+		config.read(configPath)
 		printWelcomeMessage(config)
 	except:
 		print("something strange happened: ", sys.exc_info()[0])
