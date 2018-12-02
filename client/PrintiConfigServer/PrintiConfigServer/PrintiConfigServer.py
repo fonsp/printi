@@ -48,7 +48,7 @@ def connectToWifi(name, password):
 		logging.info("Network was not detected, trying to connect anyway... (assuming WPA2)")
 	
 	output = subprocess.check_output("wifisetup clear", shell=True)
-	output = subprocess.check_output("wifisetup add -ssid {0} -encr {1} -password {2}".format(shlex.quote(name), encType, shlex.quote(password)))
+	output = subprocess.check_output("wifisetup add -ssid {0} -encr {1} -password {2}".format(shlex.quote(name), encType, shlex.quote(password)), shell=True)
 	# TODO: evaluate output
 	return False
 
