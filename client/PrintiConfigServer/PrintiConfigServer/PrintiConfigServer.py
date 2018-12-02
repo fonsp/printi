@@ -43,9 +43,9 @@ def connectToWifi(name, password):
 	encType = "none" if len(password)==0 else "psk2"
 	try:
 		encType = next(foundNetworks)[1]
-		logging.log("Network was detected. Connecting...")
+		logging.info("Network was detected. Connecting...")
 	except:
-		logging.log("Network was not detected, trying to connect anyway... (assuming WPA2)")
+		logging.info("Network was not detected, trying to connect anyway... (assuming WPA2)")
 	
 	output = subprocess.check_output("wifisetup clear", shell=True)
 	output = subprocess.check_output("wifisetup add -ssid {0} -encr {1} -password {2}".format(shlex.quote(name), encType, shlex.quote(password)))
