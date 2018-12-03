@@ -10,13 +10,17 @@ namespace Rasterizer
 	public interface IDitherer
 	{
 		/// <summary>
-		/// Apply the dithering algorithm on an image.
+		/// Apply the dithering algorithm to produce a halftone image.
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
 		BWImage GetBWImage(Bitmap image);
 	}
 
+	/// <summary>
+	/// The Burkes error diffusion dithering algorithm. Also applies gamma correction.
+	/// http://caca.zoy.org/study/part3.html
+	/// </summary>
 	public class BurkesDitherer : IDitherer
 	{
 		public byte threshold;
@@ -41,11 +45,8 @@ namespace Rasterizer
 			return (byte)x;
 		}
 
-		// Based on the Burkes implementation by Cyotek: https://github.com/cyotek/Dithering/
-
 		private static readonly byte[] BurkesDistribution = new byte[] { 0, 8, 4, 2, 4, 8, 4, 2 };
-
-
+		
 		public BWImage GetBWImage(Bitmap image)
 		{
 			size = image.Size;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Rasterizer
 {
 	/// <summary>
-	/// An image represented by a boolean matrix (black/white)
+	/// A halftone image represented by a boolean matrix (true/false is black/white, resp.)
 	/// </summary>
 	public class BWImage
 	{
@@ -28,7 +28,7 @@ namespace Rasterizer
 		}
 
 		/// <summary>
-		/// Bitmap rendering of the image; true -> #fff, false -> #000
+		/// Bitmap rendering of the image; true -> #000, false -> #fff
 		/// </summary>
 		/// <returns></returns>
 		public Bitmap GetBitmap()

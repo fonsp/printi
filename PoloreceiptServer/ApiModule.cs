@@ -28,6 +28,7 @@ namespace PoloreceiptServer
 
 			Get["/makecoffee"] = _ => Response.AsText("sorry :( 🙅☕ ").WithStatusCode(HttpStatusCode.ImATeapot);
 			
+			// Will simply convert the first attached file to h58 print commands
 			Post["/rasterizer/convert", true] = async (ctx, ct) =>
 			{
 				var files = Request.Files;
@@ -46,6 +47,12 @@ namespace PoloreceiptServer
 
 			};
 
+			/*
+			 * Submit images to the printi queue. After submitting, a new thread will start to
+			 * process the image (rotate, scale, gamma correction, dither). After processing, it
+			 * will be added to the choses printer's queue. The printer can request images from
+			 * its queue with the /nextinqueue method.
+			 */
 			Post["/submitimages/{printerName?printi}", true] = async (ctx, ct) =>
 			{
 				string printer = ctx.printerName;
@@ -91,6 +98,19 @@ namespace PoloreceiptServer
 				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.UnsupportedMediaType);
 			};
 
+			/* 
+			 * Returns the next processed image (h58 commands) in the chosen printer's queue. 
+			 * If no image is found, the server will (asynchronously) wait before responding with
+			 * NotFound. If, while waiting, an image is submitted to this printer's queue (by
+			 * someone uploading an image from the website), the wait will be aborted, and the
+			 * processed image is returned.
+			 * Using this method, we can maintain an open TCP connection with the client (i.e.
+			 * printer), using regular HTTP communication, while minimizing the number of
+			 * requests that the server has to handle every second.
+			 * To reduce the number of concurrent Tasks (threads), we only have 1 Task per
+			 * printer name, and the previously running Task is aborted when a new GET request
+			 * is sent to the server. 
+			 */
 			Get["/nextinqueue/{printerName?printi}", true] = async (ctx, ct) =>
 			{
 				string printer = ctx.printerName;
@@ -203,6 +223,10 @@ namespace PoloreceiptServer
 		public static Dictionary<string, List<PrintQueueItem>> printQueues = new Dictionary<string, List<PrintQueueItem>>();
 		public static Dictionary<string, TaskCompletionSource<bool>> queueUpdates = new Dictionary<string, TaskCompletionSource<bool>>();
 
+		/// <summary>
+		/// Will delete any expired images, and remove queues that have nothing in them. This will
+		/// also stop all running Task (if there are no queued images for that printer).
+		/// </summary>
 		public static void CleanQueue()
 		{
 			Console.WriteLine("Cleaning queue...");
@@ -227,6 +251,7 @@ namespace PoloreceiptServer
 				{
 					if(!printQueues.ContainsKey(key))
 					{
+						// TODO: smart?
 						queueUpdates[key].TrySetResult(false);
 						queueUpdates.Remove(key);
 					}
@@ -264,7 +289,8 @@ namespace PoloreceiptServer
 		}
 
 		/// <summary>
-		/// Instead of rasterizing the files and adding them to the queue, the files are saved and printed using CUPS
+		/// Instead of rasterizing the files and adding them to the queue, the files are saved and
+		/// printed using CUPS on the machine running the server. 
 		/// </summary>
 		/// <param name="files"></param>
 		/// <param name="userHostAddress"></param>
