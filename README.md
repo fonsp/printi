@@ -8,4 +8,10 @@ _Use a thermal receipt printer to quickly print from you camera or photo library
 
 ![demonstration video](https://i.imgur.com/QBQQcdW.gif)
 
-This web server hosts a simple web site that allows image uploads, and prints all incoming files. My set-up uses a Raspberry Pi, connected to a Star TSP-100 thermal printer via CUPS. The web server is written in C# using the [Nancy project](http://nancyfx.org/). Contact me if you are interested in implementing this somewhere else!
+The printi project consists of:
+- 🖨 the _printi mini_, a thermal printer that connects to your wifi network, and
+- 🌐 the _[printi.me](https://printi.me/)_ website, allowing anyone to quickly send pictures to your _printi mini_.
+
+Images sent to printi.me are printed _within a second_ after uploading, making it the **fastest way to print a photo from anyone's smart phone or computer** (i think).
+
+Read more about the project on [the Github wiki](https://github.com/fons-/printi/wiki). Contact me for any questions! ([Fons](https://github.com/fons-))
