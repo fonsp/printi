@@ -43,7 +43,7 @@ namespace PoloreceiptServer
 				{
 					return Response.FromStream(new MemoryStream(processed.First().data), "application/octet-stream").WithStatusCode(HttpStatusCode.OK);
 				}
-				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.UnsupportedMediaType);
+				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.BadRequest);
 
 			};
 

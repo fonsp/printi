@@ -27,6 +27,16 @@ namespace PoloreceiptServer.Models
 		public string PrinterName;
 		public bool IsRootPrinter;
 
+		private int? pageWidth;
+		public int PageWidth
+		{
+			get
+			{
+				return pageWidth ?? (IsRootPrinter ? 576 : 384);
+			}
+			set { pageWidth = value; }
+		}
+
 		public PrinterPageModel(string printerName, bool isRootPrinter = false)
 		{
 			PrinterName = printerName;
