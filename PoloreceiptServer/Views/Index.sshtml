@@ -5,6 +5,7 @@
 	<script>console.log("printi, by Fons van der Plas (http://github.com/fons-) 🌈");</script>
     <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<meta name="theme-color" content="#FFEFEF"/>
 	<link href="https://fonts.googleapis.com/css?family=Courgette|Itim" rel="stylesheet">
     <title>printi</title>
 	<style>
@@ -160,6 +161,17 @@
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script>
 		$(document).ready(function () {
+			/*if (typeof console != "undefined")
+				if (typeof console.log != 'undefined')
+					console.olog = console.log;
+				else
+					console.olog = function () { };
+
+			console.log = function (message) {
+				console.olog(message);
+				$('#logje').prepend('<p>' + message + '</p>');
+			};
+			console.error = console.debug = console.info = console.log*/
 			startUpload = function () {
 
 
@@ -180,96 +192,102 @@
 					console.log(e);
 					$("#previewimg").addClass("bwfilter");
 					setTimeout(function () {
-						$("#receiptcontainer").removeClass("wiggler")
+						$("#receiptcontainer").removeClass("wiggler");
 						$("#receipt").addClass("printed");
 						setTimeout(function () { location.reload() }, 2000);
 					}, 1000);
 				};
 				xhr.open('POST', '/api/submitimages/@Model.PrinterName', true);
+
 				var data = new FormData();
+				var base64images = [];
 
 				var added = 0;
 				var toAdd = this.files.length;
 
+				console.log("added: " + added);
+				console.log("toAdd: " + toAdd);
+
+				var ua = window.navigator.userAgent;
+				var ie = (ua.indexOf('MSIE ') + ua.indexOf('Trident/') + ua.indexOf('Edge/') > -3);
+
+				var allimages = true;
 				for (var i = 0; i < this.files.length; i++) {
-					var file = this.files[i];
-					console.log(file)
+					allimages = allimages && this.files[i].type.match("image.*");
+				}
 
-					if (file.type.match("image.*")) {
-						try {
+				var filereadersupport = 'FileReader' in window;
+
+				if (!ie && allimages && filereadersupport) {
+
+					for (var i = 0; i < this.files.length; i++) {
+						var file = this.files[i];
+						console.log(file);
+
+
+
+						var reader = new FileReader();
+						reader.onload = function (e) {
+							$("#previewimg").attr("src", e.target.result);
+							$("#preview").attr("style", "display: block;");
+							$("#formcontainer").attr("style", "display: none;");
+
 							var immie = document.createElement("img");
-							var reader = new FileReader()
-							reader.onload = function (e) {
-								$("#previewimg").attr("src", e.target.result);
-								$("#preview").attr("style", "display: block;");
-								$("#formcontainer").attr("style", "display: none;");
 
-								immie.onload = function () {
-									console.log("immie loaded:")
-									console.log(immie)
-									var width = immie.width;
-									var height = immie.height;
+							immie.onload = function () {
+								console.log("immie loaded:");
+								console.log(immie.width);
+								console.log(immie.height);
+								var width = immie.width;
+								var height = immie.height;
 
-									var PAGEWIDTH = @Model.PageWidth // 576 for printi classic, 384 for printi mini
+								var PAGEWIDTH = @Model.PageWidth // 576 for printi classic, 384 for printi mini
 
-									while (Math.min(width, height) >= PAGEWIDTH * 2) {
-										width /= 2;
-										height /= 2;
-										console.log("scaling down 2x");
-									}
-
-									var canvas = document.createElement("canvas");
-									canvas.width = width;
-									canvas.height = height;
-									var ctx = canvas.getContext("2d");
-									ctx.drawImage(immie, 0, 0, width, height)
-
-									console.log(canvas)
-
-									var datayumyum = canvas.toDataURL("image/jpeg", .8)
-
-
-									var bytestring;
-									if (datayumyum.split(',')[0].indexOf('base64') >= 0) {
-										bytestring = atob(datayumyum.split(',')[1]);
-									} else {
-										bytestring = unescape(datayumyum.split(',')[1]);
-									}
-									var mime = datayumyum.split(',')[0].split(':')[1].split(';')[0];
-									var ia = new Uint8Array(bytestring.length);
-									for (var j = 0; j < bytestring.length; j++) {
-										ia[j] = bytestring.charCodeAt(j);
-									}
-									var booboo = new Blob([ia], { type: mime });
-
-
-
-									var boobooFile = new File([booboo], booboo.name);
-									boobooFile.lastModifiedDate = file.lastModifiedDate;
-									
-									console.log("adding boobooFile to queue")
-									console.log(bytestring.length)
-									console.log(boobooFile)
-									data.append("file" + i, boobooFile);
-									added += 1; if (added == toAdd) { xhr.send(data); }
+								while (Math.min(width, height) >= PAGEWIDTH * 2) {
+									width /= 2;
+									height /= 2;
+									console.log("scaling down 2x");
 								}
-								immie.src = e.target.result;
 
-							}
-							reader.readAsDataURL(file);
-						} catch (err) {
-							console.log("failed to downscale image, sending raw image...")
-							console.log(err)
-							data.append("fileFAILEDTOSCALE" + i, file);
-							added += 1; if (added == toAdd) { xhr.send(data); }
+								var canvas = document.createElement("canvas");
+								canvas.width = width;
+								canvas.height = height;
+								var ctx = canvas.getContext("2d");
+								ctx.drawImage(immie, 0, 0, width, height);
+
+								console.log(canvas);
+								console.log(canvas.width);
+								console.log(canvas.height);
+
+								var datayumyum = canvas.toDataURL("image/jpeg", .7);
+
+								//console.log(datayumyum);
+								var base64data = datayumyum.split(',')[1];
+								base64images.push(base64data);
+								console.log(base64images.length);
+								added += 1;
+								if (added == toAdd) {
+									xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+									//console.log(JSON.stringify({images: base64images}))
+									xhr.send(JSON.stringify({ images: base64images }));
+									console.log("sending...");
+								}
+							};
+							immie.src = e.target.result;
+
 						}
-					} else {
-						console.log("not an image; sending anyway...")
+
+						reader.readAsDataURL(file);
+
+					}
+				} else {
+					console.log("not downsizing; sending raw files...");
+					for (var i = 0; i < this.files.length; i++) {
 						data.append('file' + i, this.files[i]);
 						added += 1; if (added == toAdd) { xhr.send(data); }
 					}
 				}
-			}
+			};
 
 			document.getElementById("filepicker").onchange = function () {
 				startUpload.call(this);
@@ -280,10 +298,8 @@
 					var items = e.clipboardData.items;
 					var imagesPasted = false;
 					this.files = [];
-					for (var i = 0; i < items.length; i++)
-					{
-						if (items[i].type.indexOf("image") >= 0)
-						{
+					for (var i = 0; i < items.length; i++) {
+						if (items[i].type.indexOf("image") >= 0) {
 							imagesPasted = true;
 							var blob = items[i].getAsFile();
 							this.files.push(blob);
@@ -293,9 +309,9 @@
 							items[i].getAsString(function (s) {
 
 								var xhr = new XMLHttpRequest();
-								xhr.open('POST', 'https://url.printi.me/api/url/@Model.PrinterName', true);
+								xhr.open('POST', 'https://url.printi.me/api/url/printi', true);
 								xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-								var data = JSON.stringify({url: s});
+								var data = JSON.stringify({ url: s });
 								xhr.send(data);
 
 
@@ -303,11 +319,10 @@
 								$("#preview").attr("style", "display: block;");
 								$("#formcontainer").attr("style", "dvisplay: none;");
 							});
-							
+
 						}
 					}
-					if (imagesPasted)
-					{
+					if (imagesPasted) {
 						startUpload.call(this);
 					}
 					e.preventDefault();

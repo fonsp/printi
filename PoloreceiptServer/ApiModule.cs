@@ -10,6 +10,7 @@ using System.IO;
 using System.Drawing;
 using PoloreceiptServer.Models;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using UrlToImage;
 using System.Net.Http;
 
@@ -27,7 +28,7 @@ namespace PoloreceiptServer
 			Get["/"] = _ => Response.AsText("it's api time!!!!!").WithStatusCode(HttpStatusCode.OK);
 
 			Get["/makecoffee"] = _ => Response.AsText("sorry :( 🙅☕ ").WithStatusCode(HttpStatusCode.ImATeapot);
-			
+
 			// Will simply convert the first attached file to h58 print commands
 			Post["/rasterizer/convert", true] = async (ctx, ct) =>
 			{
@@ -37,7 +38,7 @@ namespace PoloreceiptServer
 					return Response.AsText("no files posted").WithStatusCode(HttpStatusCode.NoContent);
 				}
 
-				var processed = await Task.Run(() => ProcessFiles(files.Take(1)), ct);
+				var processed = await Task.Run(() => ProcessBitmaps(ConvertFilesToBitmaps(files.Take(1))), ct);
 
 				if(processed.Any())
 				{
@@ -56,45 +57,92 @@ namespace PoloreceiptServer
 			Post["/submitimages/{printerName?printi}", true] = async (ctx, ct) =>
 			{
 				string printer = ctx.printerName;
-				if(Request.Files == null || !Request.Files.Any())
-				{
-					return Response.AsText("no files posted").WithStatusCode(HttpStatusCode.NoContent);
-				}
 
-				if(printer == "printi")
-				{
-					int numPrinted = PrintFilesOnRoot(Request.Files, Request.UserHostAddress);
-					if(numPrinted > 0)
-					{
-						return Response.AsText(numPrinted + " image printed at root").WithStatusCode(HttpStatusCode.OK);
-					}
-				}
-				else
-				{
-					List<PrintQueueItem> result = await Task.Run(() => ProcessFiles(Request.Files, Request.UserHostAddress), ct);
+				List<Bitmap> bitmaps = new List<Bitmap>();
 
-					if(result.Any())
+				if(Request.Headers.ContentType.Contains("json"))
+				{
+					Base64ImagesRequest base64ImagesRequest;
+					try
 					{
-						lock(printQueueLock)
+						base64ImagesRequest = this.Bind<Base64ImagesRequest>();
+						if(!base64ImagesRequest.images.Any())
 						{
-							if(!printQueues.ContainsKey(printer))
-							{
-								printQueues.Add(printer, new List<PrintQueueItem>());
-							}
-							var queue = printQueues[printer];
-
-							queue.AddRange(result);
-
-							if(queueUpdates.ContainsKey(printer))
-							{
-								queueUpdates[printer].TrySetResult(true);
-							}
+							Console.WriteLine("Empty json request.");
+							return Response.AsText("Empty json request.").WithStatusCode(HttpStatusCode.BadRequest);
 						}
-						Console.WriteLine("{0} images submitted to the queue", result.Count());
-						return Response.AsText(result.Count() + " image submitted to the queue").WithStatusCode(HttpStatusCode.OK);
+					}
+					catch(Exception e)
+					{
+						Console.WriteLine("Failed to interpret json request: " + e);
+						return Response.AsText("Failed to interpret json request: " + e).WithStatusCode(HttpStatusCode.BadRequest);
 					}
 
+					try
+					{
+						bitmaps = await Task.Run(() => ConvertBase64ToBitmaps(base64ImagesRequest.images), ct);
+					}
+					catch(Exception e)
+					{
+						Console.WriteLine("Failed to convert base64 strings to bitmaps: " + e);
+						return Response.AsText("Failed to convert base64 strings to bitmaps: " + e).WithStatusCode(HttpStatusCode.UnsupportedMediaType);
+					}
+
+					if(printer == "printi")
+					{
+						try
+						{
+							int numPrinted = PrintBitmapsOnRoot(bitmaps, Request.UserHostAddress);
+							return Response.AsText(numPrinted + " base64 images printed at root").WithStatusCode(HttpStatusCode.OK);
+						}
+						catch(Exception e)
+						{
+							Console.WriteLine("Failed to print base64 bitmaps on root: " + e);
+							return Response.AsText("Failed to print base64 bitmaps on root: " + e).WithStatusCode(HttpStatusCode.UnsupportedMediaType);
+						}
+					}
 				}
+				else if(true || Request.Headers.ContentType.Contains("form"))
+				{
+					if(Request.Files == null || !Request.Files.Any())
+					{
+						Console.WriteLine("No files in request");
+						return Response.AsText("no files posted").WithStatusCode(HttpStatusCode.NoContent);
+					}
+
+					if(printer == "printi")
+					{
+						int numPrinted = PrintFilesOnRoot(Request.Files, Request.UserHostAddress);
+						return Response.AsText(numPrinted + " files printed at root").WithStatusCode(HttpStatusCode.OK);
+					}
+
+					bitmaps = await Task.Run(() => ConvertFilesToBitmaps(Request.Files), ct);
+				}
+				
+				List<PrintQueueItem> result = await Task.Run(() => ProcessBitmaps(bitmaps, Request.UserHostAddress), ct);
+
+				if(result.Any())
+				{
+					lock(printQueueLock)
+					{
+						if(!printQueues.ContainsKey(printer))
+						{
+							printQueues.Add(printer, new List<PrintQueueItem>());
+						}
+						var queue = printQueues[printer];
+
+						queue.AddRange(result);
+
+
+						if(queueUpdates.ContainsKey(printer))
+						{
+							queueUpdates[printer].TrySetResult(true);
+						}
+					}
+					Console.WriteLine("{0} images submitted to the queue", result.Count());
+					return Response.AsText(result.Count() + " image submitted to the queue").WithStatusCode(HttpStatusCode.OK);
+				}
+
 				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.UnsupportedMediaType);
 			};
 
@@ -193,7 +241,7 @@ namespace PoloreceiptServer
 							var formContent = new MultipartFormDataContent();
 							formContent.Add(new ByteArrayContent(memoryStream.ToArray()), "page-print", "page-print-" + Guid.NewGuid() + ".png");
 							System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11 | System.Net.SecurityProtocolType.Tls;
-							HttpResponseMessage response = await new HttpClient().PostAsync("https://printi.me/api/submitimages/"+ctx.printerName, formContent);
+							HttpResponseMessage response = await new HttpClient().PostAsync("https://printi.me/api/submitimages/" + ctx.printerName, formContent);
 							if(!response.IsSuccessStatusCode)
 							{
 								Console.WriteLine("Failed to send page to printi.me: ");
@@ -225,7 +273,7 @@ namespace PoloreceiptServer
 
 		/// <summary>
 		/// Will delete any expired images, and remove queues that have nothing in them. This will
-		/// also stop all running Task (if there are no queued images for that printer).
+		/// also stop all running Tasks (if there are no queued images for that printer).
 		/// </summary>
 		public static void CleanQueue()
 		{
@@ -261,24 +309,61 @@ namespace PoloreceiptServer
 			Console.WriteLine("Queue cleaned succesfully.");
 		}
 
-		private static List<PrintQueueItem> ProcessFiles(IEnumerable<HttpFile> files, string userHostAddress = "")
+		private static List<PrintQueueItem> ProcessBitmaps(IEnumerable<Bitmap> bitmaps, string userHostAddress = "")
 		{
 			var output = new List<PrintQueueItem>();
+			foreach(Bitmap bitmap in bitmaps)
+			{
+				Console.WriteLine(DateTime.Now.ToLocalTime().ToString() + " =-= " + userHostAddress);
+
+				byte[] data = new RasterPrinter().ImageToPrintCommands(bitmap, new BurkesDitherer());
+				var queueItem = new PrintQueueItem(data, DateTime.Now, DateTime.Now + new TimeSpan(30, 0, 0, 0));
+
+				output.Add(queueItem);
+			}
+			return output;
+		}
+
+		private static List<Bitmap> ConvertBase64ToBitmaps(IEnumerable<string> imageStrings)
+		{
+			var output = new List<Bitmap>();
+			foreach(var imageString in imageStrings)
+			{
+				try
+				{
+					byte[] imb = Convert.FromBase64String(imageString);
+					Bitmap bitmap = new ImageConverter().ConvertFrom(imb) as Bitmap;
+					output.Add(bitmap);
+				}
+				catch(Exception e)
+				{
+					Console.WriteLine("ERROR: Failed to create image from base64 string: {0}", e);
+				}
+			}
+			return output;
+		}
+
+		private static List<Bitmap> ConvertFilesToBitmaps(IEnumerable<HttpFile> files)
+		{
+			var output = new List<Bitmap>();
 			foreach(var file in files)
 			{
-				Console.WriteLine(DateTime.Now.ToLocalTime().ToString() + " =-= " + userHostAddress + " =-= " + file.Name);
-				if(file.Value.Length > 10e6)
+				if(file.Value.Length > 10e7)
 				{
+					Console.WriteLine("File too big: {0}", file.Value.Length);
 					continue;
 				}
 				try
 				{
-					Bitmap image = Image.FromStream(file.Value) as Bitmap;
+					Bitmap bitmap;
+					// Mono is having trouble creating an Image directly from the file.Value stream.
+					using(var ms = new MemoryStream())
+					{
+						file.Value.CopyTo(ms);
+						bitmap = new ImageConverter().ConvertFrom(ms.ToArray()) as Bitmap;
+					}
 
-					byte[] data = new RasterPrinter().ImageToPrintCommands(image, new BurkesDitherer());
-					var queueItem = new PrintQueueItem(data, DateTime.Now, DateTime.Now + new TimeSpan(30, 0, 0, 0));
-
-					output.Add(queueItem);
+					output.Add(bitmap);
 				}
 				catch(Exception e)
 				{
@@ -286,6 +371,32 @@ namespace PoloreceiptServer
 				}
 			}
 			return output;
+		}
+
+		private static int PrintBitmapsOnRoot(IEnumerable<Bitmap> bitmaps, string userHostAddress = "")
+		{
+			int anythingUploaded = 0;
+			foreach(Bitmap bitmap in bitmaps)
+			{
+				string fileName = DateTime.Now.Ticks.ToString() + ".jpg";
+				if(!Directory.Exists("photos"))
+				{
+					Directory.CreateDirectory("photos");
+				}
+				bitmap.Save("photos/" + fileName, ImageFormat.Jpeg);
+				if(IsUnix)
+				{
+					RunCommand("convert", (enablePhotoNormalization ? "-normalize " : "") + ("photos/" + fileName) + " " + ("photos/" + "n" + fileName));
+					RunCommand("lp", (fitToPageWidth ? "-o fit-to-page " : "") + "photos/" + "n" + fileName);
+				}
+				else
+				{
+					Console.WriteLine("beep boop printing beep 🖨 " + fileName);
+				}
+				anythingUploaded++;
+			}
+
+			return anythingUploaded;
 		}
 
 		/// <summary>
@@ -397,6 +508,16 @@ namespace PoloreceiptServer
 		public override string ToString()
 		{
 			return "URL Requst for " + url;
+		}
+	}
+
+	public class Base64ImagesRequest
+	{
+		public IEnumerable<string> images;
+
+		public override string ToString()
+		{
+			return "base64 images request containing " + images.Count() + " images.";
 		}
 	}
 }

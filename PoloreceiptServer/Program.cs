@@ -12,6 +12,9 @@ namespace PoloreceiptServer
 	{
 		protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
 		{
+			Nancy.Json.JsonSettings.MaxJsonLength = int.MaxValue;
+
+
 			///// whatever /////
 			pipelines.AfterRequest += (ctx) => {
 				ctx.Response.WithHeader("Access-Control-Allow-Origin", "*")
