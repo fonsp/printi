@@ -26,6 +26,7 @@ namespace PoloreceiptServer.Models
 		}
 		public string PrinterName;
 		public bool IsRootPrinter;
+		public int ShowDebug = 0;
 
 		private int? pageWidth;
 		public int PageWidth
@@ -42,5 +43,6 @@ namespace PoloreceiptServer.Models
 			PrinterName = printerName;
 			IsRootPrinter = isRootPrinter;
 		}
+
 	}
 }

@@ -4,8 +4,9 @@
 <head>
 	<script>console.log("printi, by Fons van der Plas (http://github.com/fons-) 🌈");</script>
     <meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<meta name="viewport" content="width=device-width, user-scalable=no"/>
 	<meta name="theme-color" content="#FFEFEF"/>
+	<meta name="description" content="Send your pictures to the world's fastest photo printer!"/>
 	<link href="https://fonts.googleapis.com/css?family=Courgette|Itim" rel="stylesheet">
     <title>printi</title>
 	<style>
@@ -143,7 +144,7 @@
 					<div id="curtain"></div>
 				</div>
 				<div id="formcontainer">
-					<form id="leform" action="photoupload" method="post" enctype="multipart/form-data" target="responseframe">
+					<form id="leform" action="/api/submitimages/@Model.PrinterName" method="post" enctype="multipart/form-data" target="responseframe">
 						<input id="filepicker" type="file" name="theshiz" accept="image/*">
 						<!--<br /><br />
 			<input type="submit">-->
@@ -154,6 +155,7 @@
 		<div id="explain">
 			<a href="https://github.com/fons-/printi/blob/master/README.md">What is printi?</a>
 		</div>
+		<span id="logje"></span>
 		<iframe name="responseframe" style="display: none;"></iframe>
 	</div>
 
@@ -161,17 +163,20 @@
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script>
 		$(document).ready(function () {
-			/*if (typeof console != "undefined")
-				if (typeof console.log != 'undefined')
-					console.olog = console.log;
-				else
-					console.olog = function () { };
+			if(@Model.ShowDebug)
+			{
+				if (typeof console != "undefined")
+					if (typeof console.log != 'undefined')
+						console.olog = console.log;
+					else
+						console.olog = function () { };
 
-			console.log = function (message) {
-				console.olog(message);
-				$('#logje').prepend('<p>' + message + '</p>');
-			};
-			console.error = console.debug = console.info = console.log*/
+				console.log = function (message) {
+					console.olog(message);
+					$('#logje').prepend('<p>' + message + '</p>');
+				};
+				console.error = console.debug = console.info = console.log;
+			}
 			startUpload = function () {
 
 

@@ -26,6 +26,7 @@ namespace PoloreceiptServer
 			Get["/{printerName?printi}"] = (ctx) =>
 			{
 				var model = new PrinterPageModel(ctx.printerName, ctx.printerName == "printi");
+				int.TryParse(Request.Query["log"], out model.ShowDebug);
 				return View["Index", model];
 			};
 
