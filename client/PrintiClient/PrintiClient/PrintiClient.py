@@ -153,7 +153,7 @@ while True:
 			printWelcomeMessage(config)
 
 
-	except requests.exceptions.ReadTimeout as err:
+	except requests.exceptions.Timeout as err:
 		print("no response, let's try again...")
 	except requests.exceptions.ConnectionError as err:
 		print("connection error:", err)
@@ -162,4 +162,7 @@ while True:
 		printWelcomeMessage(config)
 	except:
 		print("something strange happened: ", sys.exc_info()[0])
-		raise
+		waitForPrintiConnection()
+		config.read(configPath)
+		printWelcomeMessage(config)
+		
