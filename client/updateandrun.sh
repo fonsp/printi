@@ -7,4 +7,4 @@ cd /root/printi
 touch /root/printi.log
 
 (cd /root/printi/client/PrintiConfigServer/PrintiConfigServer; python3 PrintiConfigServer.py)&
-(cd /root/printi/client/PrintiClient/PrintiClient; python3 -h PrintiClient.py &> /root/printi.log)&
+(cd /root/printi/client/PrintiClient/PrintiClient; python3 -u PrintiClient.py &> /root/printi.log)&
