@@ -118,7 +118,7 @@ namespace PoloreceiptServer
 
 					bitmaps = await Task.Run(() => ConvertFilesToBitmaps(Request.Files), ct);
 				}
-				
+
 				List<PrintQueueItem> result = await Task.Run(() => ProcessBitmaps(bitmaps, Request.UserHostAddress), ct);
 
 				if(result.Any())
@@ -265,11 +265,50 @@ namespace PoloreceiptServer
 				}
 				return Response.AsText("something went wrong").WithStatusCode(HttpStatusCode.ImATeapot);
 			};
+
+			Post["/clean"] = ctx =>
+			{
+				int oldCount;
+				lock(printQueueLock)
+				{
+					oldCount = printQueues.Count;
+				}
+				int oldSize = totalPrintQueueItems;
+
+				CleanQueue();
+
+				int newCount;
+				lock(printQueueLock)
+				{
+					newCount = printQueues.Count;
+				}
+				int newSize = totalPrintQueueItems;
+				return Response.AsText("Removed " + (oldCount - newCount) + " queues and " + (oldSize - newSize) + " items.").WithStatusCode(HttpStatusCode.OK);
+			};
+
+			Get["/queuesize"] = ctx =>
+			{
+				int count;
+				lock(printQueueLock)
+				{
+					count = printQueues.Count;
+				}
+				int size = totalPrintQueueItems;
+				return Response.AsText(count + " queues and " + size + " items.").WithStatusCode(HttpStatusCode.OK);
+			};
 		}
 
 		public static object printQueueLock = new object();
 		public static Dictionary<string, List<PrintQueueItem>> printQueues = new Dictionary<string, List<PrintQueueItem>>();
 		public static Dictionary<string, TaskCompletionSource<bool>> queueUpdates = new Dictionary<string, TaskCompletionSource<bool>>();
+
+		public static int totalPrintQueueItems
+		{
+			get
+			{
+				return printQueues.Select(pair => pair.Value.Count()).Sum();
+			}
+		}
 
 		/// <summary>
 		/// Will delete any expired images, and remove queues that have nothing in them. This will
