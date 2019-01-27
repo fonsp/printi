@@ -175,7 +175,7 @@
 					<div id="curtain"></div>
 				</div>
 				<div id="formcontainer">
-					<form id="leform" action="/setconfig" method="post" enctype="multipart/form-data">
+					<form id="leform" action="/setconfig.html" method="post" enctype="multipart/form-data">
 						CONFIGFORM
 						<br /><br /><input style="width: 100%" type="submit" value="Save">
 					</form>

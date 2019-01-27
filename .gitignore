@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 env/
 venv/
+
+client/PrintiConfigServer/PrintiConfigServer/index.html
