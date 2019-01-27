@@ -6,7 +6,22 @@ from pathlib import Path
 import sys
 import subprocess
 
-printerPath = "/dev/usb/lp0"
+printerPath = "nul"  # win
+printerPaths = ["/dev/null", "/dev/usb/lp1", "/dev/usb/lp0"]
+if len(sys.argv) > 1:
+	printerPaths.append(sys.argv[1])
+
+for pp in printerPaths:
+	try:
+		if Path(pp).exists():
+			printerPath = pp
+	except Exception:
+		pass
+
+print("Using print device at: "+printerPath)
+
+shouldPrintDetailedInstructions = True
+
 
 def printTextToPaper(text):
 	print("🖨: "+text)
@@ -19,7 +34,8 @@ def printTextToPaper(text):
 			while(len(w) > 0):
 				lines.append(w[:32]+" ")
 				w = w[32:]
-	Path(printerPath).chmod(0o777)
+	if "nul" not in printerPath:
+		Path(printerPath).chmod(0o666)
 	with open(printerPath, "w") as p:
 		for line in lines:
 			p.write(line[:-1] + "\n")
@@ -28,7 +44,8 @@ def printTextToPaper(text):
 
 def printImageDataToPaper(data):
 	print("🖨🌈: printing {0} bytes...".format(len(data)))
-	Path(printerPath).chmod(0o777)
+	if "nul" not in printerPath:
+		Path(printerPath).chmod(0o666)
 	with open(printerPath, "wb") as pb:
 		pb.write(data)
 	return
@@ -43,16 +60,18 @@ def ping(address, timeout=10):
 	try:
 		response = requests.get(address, timeout=timeout)
 		return response.status_code == 200
-	except:
+	except Exception:
 		return False
 	return False
 
 
-def waitForPrintiConnection(firstGoogleFailure = True, firstPrintiFailure = True):
+def waitForPrintiConnection(firstGoogleFailure=True, firstPrintiFailure=True):
+	global shouldPrintDetailedInstructions
 	while True:
 		if ping("https://www.google.com/", 10) or ping("https://www.google.com/", 10):
+			shouldPrintDetailedInstructions = False
 			if ping("https://printi.me/ping", 10):
-				return True
+				return firstGoogleFailure
 			else:
 				if firstPrintiFailure:
 					printTextToPaper("Connected to the internet, but the printi.me server is not responding.")
@@ -61,32 +80,39 @@ def waitForPrintiConnection(firstGoogleFailure = True, firstPrintiFailure = True
 				firstPrintiFailure = False
 		else:
 			if firstGoogleFailure:
-				printTextToPaper("This printi is not connected to the internet :(")
 				apName = "printi-******"
 				password = "12345678"
 				try:
-					apName = subprocess.check_output("uci get wireless.ap.ssid",shell=True).decode()
-					password = subprocess.check_output("uci get wireless.ap.key",shell=True).decode()
-				except Exception as e:
-					print("Can't get wifi AP name/pass: "+str(e))
+					apName = subprocess.check_output("uci get wireless.ap.ssid", shell=True).decode().replace("\n", "")
+					password = subprocess.check_output("uci get wireless.ap.key", shell=True).decode().replace("\n", "")
+				except Exception as err:
+					print("Can't get wifi AP name/pass: "+str(err))
 
-				printTextToPaper("")
-				printTextToPaper("=> Step 1:")
-				printTextToPaper("On your phone/laptop, connect to the wifi network emitted by this printi:")
-				printTextToPaper("      Name: "+apName)
-				printTextToPaper("  Password: "+password)
-				printTextToPaper("")
-				printTextToPaper("=> Step 2:")
-				printTextToPaper("After connecting, open a web browser and navigate to:")
-				printTextToPaper("http://192.168.3.1/")
-				printTextToPaper("")
-				printTextToPaper("=> Step 3:")
-				printTextToPaper("Type in the name and password of the WiFi network that you want your printi to connect to, and press Save.")
-				printTextToPaper("")
-				printTextToPaper("Tip: This page can also be used to change the name of your printer! Just repeat steps 1 & 2 to come back to this page whenever you wish.")
-				printTextToPaper("")
-				printTextToPaper("That's it! Happy printing!")
+				if shouldPrintDetailedInstructions:
+					printTextToPaper("This printi is not connected to the internet :(")
+					printTextToPaper("")
+					printTextToPaper("=> Step 1:")
+					printTextToPaper("On your phone/laptop, connect to the wifi network emitted by this printi:")
+					printTextToPaper("")
+					printTextToPaper("      Name: "+apName)
+					printTextToPaper("  Password: "+password)
+					printTextToPaper("")
+					printTextToPaper("=> Step 2:")
+					printTextToPaper("After connecting, open a web browser and navigate to:")
+					printTextToPaper("http://192.168.3.1/")
+					printTextToPaper("")
+					printTextToPaper("=> Step 3:")
+					printTextToPaper("Type in the name and password of the WiFi network that you want your printi to connect to, and press Save.")
+					printTextToPaper("")
+					printTextToPaper("Tip: The settings page can also be used to change the name of your printer! Store these instructions somewhere safe (or visit help.printi.me).")
+					printTextToPaper("")
+					printTextToPaper("That's it! Happy printing!")
+				else:
+					printTextToPaper("Lost internet connection :(")
+					printTextToPaper("For setup instructions, go to:")
+					printTextToPaper("  help.printi.me")
 				feed()
+
 			firstGoogleFailure = False
 	return False
 
@@ -104,7 +130,7 @@ configPath = "/etc/printi/config.ini"
 
 tries = 0
 while not Path(configPath).is_file():
-	print("Could not find config file...")
+	print("Could not find config file at: "+configPath)
 	time.sleep(1.)
 	tries += 1
 	if tries == 30:
@@ -112,7 +138,7 @@ while not Path(configPath).is_file():
 
 try:
 	config.read(configPath)
-except:
+except Exception:
 	print("Could not find config file! Exiting...")
 	printTextToPaper("Could not find config file! Exiting...")
 	feed()
@@ -123,10 +149,11 @@ try:
 		logoData = logoFile.read()
 	printImageDataToPaper(logoData)
 except FileNotFoundError as err:
-	print("Could not find logo file!")
+	print("Could not find logo file: "+str(err))
 	printTextToPaper("  ~~ printi ~~")
-except:
-	print("Can't print!!! Exiting...")
+except Exception as err:
+	print("Can't print! : "+str(err))
+	print("Exiting...")
 	exit(1)
 
 
@@ -138,7 +165,6 @@ while True:
 	try:
 		config.read(configPath)
 		printerName = urllib.parse.unquote(config["printi"]["name"])
-
 
 		r = session.get("https://printi.me/api/nextinqueue/"+printerName, timeout=10)
 		print("response!")
@@ -152,17 +178,21 @@ while True:
 			config.read(configPath)
 			printWelcomeMessage(config)
 
-
-	except requests.exceptions.Timeout as err:
-		print("no response, let's try again...")
+	except requests.exceptions.Timeout:
+		print("")
 	except requests.exceptions.ConnectionError as err:
-		print("connection error:", err)
-		waitForPrintiConnection()
-		config.read(configPath)
-		printWelcomeMessage(config)
-	except:
-		print("something strange happened: ", sys.exc_info()[0])
-		waitForPrintiConnection()
-		config.read(configPath)
-		printWelcomeMessage(config)
-		
+		print("connection error:", str(err))
+		print("sleeping 5 sec...")
+		time.sleep(5)
+		instantSuccess = waitForPrintiConnection()
+		if not instantSuccess:
+			config.read(configPath)
+			printWelcomeMessage(config)
+	except Exception as err:
+		print("something strange happened: ", str(err))
+		print("sleeping 5 sec...")
+		time.sleep(5)
+		instantSuccess = waitForPrintiConnection()
+		if not instantSuccess:
+			config.read(configPath)
+			printWelcomeMessage(config)
