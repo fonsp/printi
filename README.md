@@ -14,4 +14,6 @@ The printi project consists of:
 
 Images sent to printi.me are printed _within a second_ after uploading, making it the **fastest way to print a photo from anyone's smart phone or computer** (i think).
 
+**FAQ for printi mini owners: [help.printi.me](https://help.printi.me)**
+
 Read more about the project on [the Github wiki](https://github.com/fons-/printi/wiki). Contact me for any questions! ([Fons](https://github.com/fons-))
