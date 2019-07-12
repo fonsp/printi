@@ -87,10 +87,6 @@
       <Project>{8baccdd7-11f9-4e5b-9ab5-6346056c80aa}</Project>
       <Name>Rasterizer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UrlToImage\UrlToImage.csproj">
-      <Project>{05f6ed26-59e2-4c2a-abb4-cba59ff6947f}</Project>
-      <Name>UrlToImage</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.43.0\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.43.0\build\Selenium.WebDriver.ChromeDriver.targets')" />

@@ -11,7 +11,7 @@ using System.Drawing;
 using PoloreceiptServer.Models;
 using System.Diagnostics;
 using System.Drawing.Imaging;
-using UrlToImage;
+// using UrlToImage;
 using System.Net.Http;
 
 namespace PoloreceiptServer
@@ -207,6 +207,13 @@ namespace PoloreceiptServer
 				return Response.AsText("nothing found").WithStatusCode(HttpStatusCode.NotFound);
 			};
 
+			Post["/url/{printerName?printi}"] = ctx =>
+				{
+					return Response.AsText("URL support has been deprecated 😢")
+						.WithStatusCode(HttpStatusCode.MethodNotAllowed);
+				};
+
+			/*
 			Post["/url/{printerName?printi}", true] = async (ctx, ct) =>
 			{
 				try
@@ -265,6 +272,7 @@ namespace PoloreceiptServer
 				}
 				return Response.AsText("something went wrong").WithStatusCode(HttpStatusCode.ImATeapot);
 			};
+			*/
 
 			Post["/clean"] = ctx =>
 			{
