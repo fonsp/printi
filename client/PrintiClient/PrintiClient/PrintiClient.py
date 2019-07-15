@@ -187,7 +187,7 @@ while True:
 		r = session.get("https://printi.me/api/nextinqueue/"+printerName, timeout=10)
 		print("response!")
 		print(r.status_code)
-		if r.status_code == 302:
+		if r.status_code == 200:
 			data = r.content
 			printImageDataToPaper(data)
 			feed()
