@@ -149,8 +149,8 @@ namespace PoloreceiptServer
 				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.UnsupportedMediaType);
 			};
 
-			/* 
-			 * Returns the next processed image (h58 commands) in the chosen printer's queue. 
+			/*
+			 * Returns the next processed image (h58 commands) in the chosen printer's queue.
 			 * If no image is found, the server will (asynchronously) wait before responding with
 			 * NotFound. If, while waiting, an image is submitted to this printer's queue (by
 			 * someone uploading an image from the website), the wait will be aborted, and the
@@ -160,7 +160,7 @@ namespace PoloreceiptServer
 			 * requests that the server has to handle every second.
 			 * To reduce the number of concurrent Tasks (threads), we only have 1 Task per
 			 * printer name, and the previously running Task is aborted when a new GET request
-			 * is sent to the server. 
+			 * is sent to the server.
 			 */
 			Get["/nextinqueue/{printerName?printi}", true] = async (ctx, ct) =>
 			{
@@ -213,7 +213,7 @@ namespace PoloreceiptServer
 
 			Post["/url/{printerName?printi}"] = ctx =>
 				{
-					return Response.AsText("URL support has been deprecated 😢")
+					return Response.AsText("URL support has been suspended 😢")
 						.WithStatusCode(HttpStatusCode.MethodNotAllowed);
 				};
 
@@ -499,12 +499,12 @@ namespace PoloreceiptServer
 		/*
 		/// <summary>
 		/// Instead of rasterizing the files and adding them to the queue, the files are saved and
-		/// printed using CUPS on the machine running the server. 
+		/// printed using CUPS on the machine running the server.
 		/// </summary>
 		/// <param name="files"></param>
 		/// <param name="userHostAddress"></param>
 		/// <returns></returns>
-		
+
 		private static int PrintFilesOnRoot(IEnumerable<HttpFile> files, string userHostAddress = "")
 		{
 			int anythingUploaded = 0;
@@ -604,7 +604,7 @@ namespace PoloreceiptServer
 		public string fileNamePreference;
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="data"></param>
 		/// <param name="isRasterized"></param>
