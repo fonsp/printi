@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29209.62
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoloreceiptServer", "PoloreceiptServer\PoloreceiptServer.csproj", "{7EA9A733-673B-4D58-BDB9-66BFA6EF446C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rasterizer", "Rasterizer\Rasterizer.csproj", "{8BACCDD7-11F9-4E5B-9AB5-6346056C80AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Printi", "Printi\Printi.csproj", "{51527F40-AE4A-4B69-B42F-9936F132B553}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8BACCDD7-11F9-4E5B-9AB5-6346056C80AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BACCDD7-11F9-4E5B-9AB5-6346056C80AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BACCDD7-11F9-4E5B-9AB5-6346056C80AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51527F40-AE4A-4B69-B42F-9936F132B553}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51527F40-AE4A-4B69-B42F-9936F132B553}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51527F40-AE4A-4B69-B42F-9936F132B553}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51527F40-AE4A-4B69-B42F-9936F132B553}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

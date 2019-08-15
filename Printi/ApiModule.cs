@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 // using UrlToImage;
 
-namespace PoloreceiptServer
+namespace Printi
 {
 	public class ApiModule : NancyModule
 	{
@@ -26,12 +26,12 @@ namespace PoloreceiptServer
 
 		public ApiModule() : base("/api")
 		{
-			Get["/"] = _ => Response.AsText("it's api time!!!!!").WithStatusCode(HttpStatusCode.OK);
+			Get("/", _ => Response.AsText("it's api time!!!!!").WithStatusCode(HttpStatusCode.OK));
 
-			Get["/makecoffee"] = _ => Response.AsText("sorry :( 🙅☕ ").WithStatusCode(HttpStatusCode.ImATeapot);
+			Get("/makecoffee", _ => Response.AsText("sorry :( 🙅☕ ").WithStatusCode(HttpStatusCode.ImATeapot));
 
 			// Will simply convert the first attached file to h58 print commands
-			Post["/rasterizer/convert", true] = async (ctx, ct) =>
+			Post("/rasterizer/convert", async (ctx, ct) =>
 			{
 				var files = Request.Files;
 				if(files == null || !files.Any())
@@ -47,7 +47,7 @@ namespace PoloreceiptServer
 				}
 				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.BadRequest);
 
-			};
+			});
 
 			/*
 			 * Submit images to the printi queue. After submitting, a new thread will start to
@@ -55,13 +55,12 @@ namespace PoloreceiptServer
 			 * will be added to the choses printer's queue. The printer can request images from
 			 * its queue with the /nextinqueue method.
 			 */
-			Post["/submitimages/{printerName?printi}", true] = async (ctx, ct) =>
+			Post("/submitimages/{printerName?printi}", async (ctx, ct) =>
 			{
 				string printer = ctx.printerName;
-
 				List<PrintQueueItem> result;
 
-				if(Request.Headers.ContentType.Contains("json"))
+				if(new Nancy.Responses.Negotiation.MediaRange("application/json").Matches(Request.Headers.ContentType))
 				{
 					List<Bitmap> bitmaps = new List<Bitmap>();
 
@@ -147,7 +146,7 @@ namespace PoloreceiptServer
 				}
 
 				return Response.AsText("none of the images could be processed").WithStatusCode(HttpStatusCode.UnsupportedMediaType);
-			};
+			});
 
 			/*
 			 * Returns the next processed image (h58 commands) in the chosen printer's queue.
@@ -162,7 +161,7 @@ namespace PoloreceiptServer
 			 * printer name, and the previously running Task is aborted when a new GET request
 			 * is sent to the server.
 			 */
-			Get["/nextinqueue/{printerName?printi}", true] = async (ctx, ct) =>
+			Get("/nextinqueue/{printerName?printi}", async (ctx, ct) =>
 			{
 				string printer = ctx.printerName;
 				TaskCompletionSource<bool> tcs;
@@ -209,16 +208,16 @@ namespace PoloreceiptServer
 				}
 
 				return Response.AsText("nothing found").WithStatusCode(HttpStatusCode.NotFound);
-			};
+			});
 
-			Post["/url/{printerName?printi}"] = ctx =>
-				{
-					return Response.AsText("URL support has been suspended 😢")
-						.WithStatusCode(HttpStatusCode.MethodNotAllowed);
-				};
+			Post("/url/{printerName?printi}", ctx =>
+			{
+				return Response.AsText("URL support has been suspended 😢")
+					.WithStatusCode(HttpStatusCode.MethodNotAllowed);
+			});
 
 			/*
-			Post["/url/{printerName?printi}", true] = async (ctx, ct) =>
+			Post("/url/{printerName?printi}", async (ctx, ct) =>
 			{
 				try
 				{
@@ -275,10 +274,10 @@ namespace PoloreceiptServer
 					return Response.AsText("URL could not be processed: " + e.Message).WithStatusCode(HttpStatusCode.BadRequest);
 				}
 				return Response.AsText("something went wrong").WithStatusCode(HttpStatusCode.ImATeapot);
-			};
+			});
 			*/
 
-			Post["/clean"] = ctx =>
+			Post("/clean", ctx =>
 			{
 				int oldCount;
 				lock(printQueueLock)
@@ -296,9 +295,9 @@ namespace PoloreceiptServer
 				}
 				int newSize = totalPrintQueueItems;
 				return Response.AsText("Removed " + (oldCount - newCount) + " queues and " + (oldSize - newSize) + " items.").WithStatusCode(HttpStatusCode.OK);
-			};
+			});
 
-			Get["/queuesize"] = ctx =>
+			Get("/queuesize", ctx =>
 			{
 				int count;
 				lock(printQueueLock)
@@ -307,7 +306,7 @@ namespace PoloreceiptServer
 				}
 				int size = totalPrintQueueItems;
 				return Response.AsText(count + " queues and " + size + " items.").WithStatusCode(HttpStatusCode.OK);
-			};
+			});
 		}
 
 		public static object printQueueLock = new object();
@@ -374,6 +373,7 @@ namespace PoloreceiptServer
 				if(isPrintiOriginal)
 				{
 					MemoryStream ms = new MemoryStream();
+					// TODO: large files
 					bitmap.Save(ms, ImageFormat.Jpeg);
 					data = ms.ToArray();
 				}
@@ -443,7 +443,11 @@ namespace PoloreceiptServer
 				try
 				{
 					byte[] imb = Convert.FromBase64String(imageString);
-					Bitmap bitmap = new ImageConverter().ConvertFrom(imb) as Bitmap;
+					Bitmap bitmap = null;
+					using(var ms = new MemoryStream(imb))
+					{
+						bitmap = Image.FromStream(ms) as Bitmap;
+					}
 					output.Add(bitmap);
 				}
 				catch(Exception e)
@@ -458,14 +462,16 @@ namespace PoloreceiptServer
 		{
 			try
 			{
-				Bitmap bitmap;
+				Bitmap bitmap = null;
+				/*
 				// Mono is having trouble creating an Image directly from the file.Value stream.
 				using(var ms = new MemoryStream())
 				{
 					file.Value.CopyTo(ms);
-					bitmap = new ImageConverter().ConvertFrom(ms.ToArray()) as Bitmap;
+					bitmap = Image.FromStream(ms) as Bitmap;
 				}
-
+				*/
+				bitmap = Image.FromStream(file.Value) as Bitmap;
 				return bitmap;
 			}
 			catch(Exception e)
@@ -611,7 +617,7 @@ namespace PoloreceiptServer
 		/// <param name="submittedDateTime"></param>
 		/// <param name="expirationDateTime">Date after which the item will be deleted from the queue</param>
 		/// <param name="fileNamePreference">If specified, this filename will be used for non-rasterized images. Important for preserving file extension.</param>
-		public PrintQueueItem(byte[] data, bool isRasterized, DateTime submittedDateTime, DateTime expirationDateTime, string fileNamePreference=null)
+		public PrintQueueItem(byte[] data, bool isRasterized, DateTime submittedDateTime, DateTime expirationDateTime, string fileNamePreference = null)
 		{
 			this.data = data;
 			this.isRasterized = isRasterized;

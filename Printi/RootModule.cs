@@ -12,27 +12,27 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net;
 using System.Security.Authentication;
-using PoloreceiptServer.Models;
+using Printi.Models;
 
-namespace PoloreceiptServer
+namespace Printi
 {
-	public class Module : NancyModule
+	public class RootModule : NancyModule
 	{
-		public Module()
+		public RootModule()
 		{
 			After.AddItemToEndOfPipeline((ctx) => ctx.Response.WithHeader("Access-Control-Allow-Origin", "*").WithHeader("Access-Control-Allow-Methods", "POST,GET").WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
-			Options["/"] = _ => new Response();
+			Options("/",  _ => new Response());
 
-			Get["/{printerName?printi}"] = (ctx) =>
+			Get("/{printerName?printi}", ctx =>
 			{
 				var model = new PrinterPageModel(ctx.printerName, ctx.printerName == "printi");
 				int.TryParse(Request.Query["log"], out model.ShowDebug);
 				return View["Index", model];
-			};
+			});
 
-			Get["/ping"] = para => "OK";
-			
-			Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.42/");
+			Get("/ping", para => "OK");
+
+			//Get["/snel"] = Get["/sneller"] = Get["/fast"] = Get["/faster"] = para => Response.AsRedirect("http://192.168.2.42/");
 		}
 	}
 }
