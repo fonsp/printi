@@ -1,22 +1,20 @@
 #!/bin/bash
 
+! mkdir tmp
+cd tmp
+
 while true
 do
-	tmpdir=`mktemp -d -p .`
-
-	cd $tmpdir
-
 	if (wget --content-disposition --trust-server-names api.printi.me/nextinqueue)
 	then
 		downloadedfile=$(ls)
 
-		cd ..
+		extension="${downloadedfile#*.}"
+		newname=$(ls .. | wc -l).$extension
 
-		mv "$tmpdir/$downloadedfile" "$tmpdir$downloadedfile"
-		! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
-		lp -o fit-to-page "$tmpdirNORM$downloadedfile"
-	else
-		cd ..
+		mv $downloadedfile ../$newname
+
+		#! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
+		lp -o fit-to-page ../$newname
 	fi
-	rmdir "$tmpdir"
 done
