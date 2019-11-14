@@ -97,7 +97,7 @@ int main(){
 	putchar(0);
 	putchar(0);
 
-	for(int y = 0; y < imageHeight; y++){
+	for(int y = imageHeight - 1; y >= 0; y--){
 		for(int x = 0; x < imageWidth / 8; x++){
 			putchar(imgData[y * imageWidth / 8 + x]);
 		}
