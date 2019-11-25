@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 
 
 namespace Rasterizer
@@ -43,6 +44,31 @@ namespace Rasterizer
     private float Lerp(float a, float b, float t)
     {
       return a * (1f - t) + b * t;
+    }
+  }
+
+  public class QuantileEnhancer : IEnhancer
+  {
+    public GrayscaleImage Enhance(GrayscaleImage image)
+    {
+      var pixelValues = new List<float>(image.data);
+      pixelValues.Sort();
+      float[] mapping = new float[256];
+      for (int i = 0; i < pixelValues.Count; i++)
+      {
+        mapping[(int)pixelValue[i]] = (int)(i * 255f / pixelValues.Count);
+      }
+
+      GrayscaleImage result = new GrayscaleImage(image.size);
+      for (int x = 0; x < result.size.Width; x++)
+      {
+        for (int y = 0; y < result.size.Height; y++)
+        {
+          var newValue = mapping[(int)image.GetValue(x, y)];
+          result.SetValue(x, y, newValue);
+        }
+      }
+      return result;
     }
   }
 }
