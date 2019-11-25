@@ -14,7 +14,7 @@ namespace Rasterizer
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
-		BWImage GetBWImage(Bitmap image);
+		BWImage GetBWImage(GrayscaleImage image);
 	}
 
 	/// <summary>
@@ -46,29 +46,19 @@ namespace Rasterizer
 		}
 
 		private static readonly byte[] BurkesDistribution = new byte[] { 0, 8, 4, 2, 4, 8, 4, 2 };
-		
-		public BWImage GetBWImage(Bitmap image)
+
+		public BWImage GetBWImage(GrayscaleImage image)
 		{
 			size = image.Size;
 			size.Width = (size.Width / 8) * 8;
+			GrayscaleImage workspace = new GrayscaleImage(image);
 			BWImage output = new BWImage(size);
-			data = new byte[size.Width, size.Height];
-			for(int y = 0; y < size.Height; y++)
-			{
-				for(int x = 0; x < size.Width; x++)
-				{
-					Color c = image.GetPixel(x, y);
-					float pixelValue = (c.R * 2126 + c.G * 7152 + c.B * 0722)/2550000f;
-					float invValue = 1f - pixelValue;
-					data[x, y] = (byte)( (1 - invValue * invValue) * 255);
-				}
-			}
 
 			for(int y = 0; y < size.Height; y++)
 			{
 				for(int x = 0; x < size.Width; x++)
 				{
-					byte value = data[x, y];
+					int value = workspace.GetValue(x, y);
 					bool thresholded = value < threshold;
 					int error = thresholded ? value : value - 255;
 
@@ -81,7 +71,8 @@ namespace Rasterizer
 							int newy = y + shifty;
 							if(newy < size.Height)
 							{
-								data[newx, newy] = ClipToByte(data[newx, newy] + ((BurkesDistribution[shiftx + 5 * shifty] * error) >> 5));
+								int newValue = workspace.GetValue(x, y) + ((BurkesDistribution[shiftx + 5 * shifty] * error) >> 5);
+								workspace.SetValue(newx, newy, newValue);
 							}
 						}
 

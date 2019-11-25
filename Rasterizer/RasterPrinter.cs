@@ -32,7 +32,7 @@ namespace Rasterizer
 		public byte[] ImageToPrintCommands(Bitmap inputImage, IDitherer ditherer, bool rotateForLargerPrint = true)
 		{
 			var resized = ScaleToFitPage(inputImage, rotateForLargerPrint);
-			BWImage result = ditherer.GetBWImage(resized);
+			BWImage result = ditherer.GetBWImage(new GrayscaleImage(resized));
 			byte[] printCommands = RasterToPrintCommands(result);
 			return printCommands;
 		}
