@@ -50,14 +50,21 @@ namespace Rasterizer
 		{
 			size = image.size;
 			size.Width = (size.Width / 8) * 8;
-			GrayscaleImage workspace = new GrayscaleImage(image);
 			BWImage output = new BWImage(size);
+			var data = new byte[size.Width, size.Height];
+			for(int y = 0; y < size.Height; y++)
+			{
+				for(int x = 0; x < size.Width; x++)
+				{
+					data[x, y] = (byte)image.GetValue(x, y);
+				}
+			}
 
 			for(int y = 0; y < size.Height; y++)
 			{
 				for(int x = 0; x < size.Width; x++)
 				{
-					int value = workspace.GetValue(x, y);
+					byte value = data[x, y];
 					bool thresholded = value < threshold;
 					int error = thresholded ? value : value - 255;
 
@@ -70,8 +77,7 @@ namespace Rasterizer
 							int newy = y + shifty;
 							if(newy < size.Height)
 							{
-								int newValue = workspace.GetValue(x, y) + ((BurkesDistribution[shiftx + 5 * shifty] * error) >> 5);
-								workspace.SetValue(newx, newy, newValue);
+								data[newx, newy] = ClipToByte(data[newx, newy] + ((BurkesDistribution[shiftx + 5 * shifty] * error) >> 5));
 							}
 						}
 
@@ -82,7 +88,7 @@ namespace Rasterizer
 						}
 					}
 
-					output.data[x + size.Width * y] = thresholded;
+					output.data[x * size.Height + y] = thresholded;
 				}
 			}
 			return output;

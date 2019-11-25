@@ -15,17 +15,17 @@ namespace Rasterizer
 
 		public override int GetValue(int x, int y)
 		{
-			return Math.Clamp((int)data[x * size.Width + y], 0, 255);
+			return Math.Clamp((int)data[x * size.Height + y], 0, 255);
 		}
 
 		public override void SetValue(int x, int y, int value)
 		{
-			data[x * size.Width + y] = value;
+			data[x * size.Height + y] = value;
 		}
 
 		public override void SetValue(int x, int y, float value)
 		{
-			data[x * size.Width + y] = value;
+			data[x * size.Height + y] = value;
 		}
 
 		public GrayscaleImage Blurred(float factor)

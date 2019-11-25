@@ -35,15 +35,10 @@ namespace Rasterizer
 			{
 				for (int y = 0; y < image.size.Height; y++)
 				{
-					result.SetValue(x, y, Lerp(image.GetValue(x, y), blurred.GetValue(x, y), -this.factor));
+					result.SetValue(x, y, image.GetValue(x, y) - blurred.GetValue(x, y) * this.factor);
 				}
 			}
 			return result;
-		}
-
-		private float Lerp(float a, float b, float t)
-		{
-			return a * (1f - t) + b * t;
 		}
 	}
 
@@ -56,7 +51,7 @@ namespace Rasterizer
 			float[] mapping = new float[256];
 			for (int i = 0; i < pixelValues.Count; i++)
 			{
-				mapping[(int)pixelValues[i]] = (int)(i * 255f / pixelValues.Count);
+				mapping[(int)Math.Clamp(pixelValues[i], 0, 255)] = (int)(i * 255.5f / pixelValues.Count);
 			}
 
 			GrayscaleImage result = new GrayscaleImage(image.size);

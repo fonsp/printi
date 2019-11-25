@@ -14,12 +14,12 @@ namespace Rasterizer
 
 		public override int GetValue(int x, int y)
 		{
-			return data[x * size.Width + y] ? 0 : 255;
+			return data[x * size.Height + y] ? 0 : 255;
 		}
 
 		public override void SetValue(int x, int y, int value)
 		{
-			data[x * size.Width + y] = value < 128;
+			data[x * size.Height + y] = value < 128;
 		}
 	}
 }

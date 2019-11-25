@@ -40,14 +40,11 @@ namespace Rasterizer
 		{
 			this.size = image.Size;
 			this.data = new T[size.Width * size.Height];
-			for(int y = 0; y < this.size.Height; y++)
+			for(int x = 0; x < size.Width; x++)
 			{
-				for(int x = 0; x < this.size.Width; x++)
+				for(int y = 0; y < size.Height; y++)
 				{
-					Color c = image.GetPixel(x, y);
-					float pixelValue = (c.R * 2126 + c.G * 7152 + c.B * 0722)/2550000f;
-					float invValue = 1f - pixelValue;
-					this.SetValue(x, y, (1f - invValue * invValue) * 255);
+					this.SetValue(x, y, ColorToGray(image.GetPixel(x, y)));
 				}
 			}
 		}
@@ -59,13 +56,11 @@ namespace Rasterizer
 		public Bitmap GetBitmap()
 		{
 			var output = new Bitmap(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-			for(int y = 0; y < size.Height; y++)
+			for(int x = 0; x < size.Width; x++)
 			{
-				for(int x = 0; x < size.Width; x++)
+				for(int y = 0; y < size.Height; y++)
 				{
-					int value = (int)(Math.Sqrt(1f - GetValue(x, y) / 255f) * 255f);
-					Color c = Color.FromArgb(value, value, value);
-					output.SetPixel(x, y, c);
+					output.SetPixel(x, y, ColorFromGray(GetValue(x, y)));
 				}
 			}
 			return output;
@@ -77,6 +72,20 @@ namespace Rasterizer
 		public virtual void SetValue(int x, int y, float value)
 		{
 			SetValue(x, y, (int)value);
+		}
+
+		private static float ColorToGray(Color color)
+		{
+			float pixelValue = (color.R * 2126 + color.G * 7152 + color.B * 0722)/2550000f;
+			float invValue = 1f - pixelValue;
+			return (1f - invValue * invValue) * 255;
+		}
+
+		private static Color ColorFromGray(float gray)
+		{
+			var invValue = Math.Sqrt(1f - gray / 255f);
+			int value = (int)((1f - invValue) * 255f);
+			return Color.FromArgb(value, value, value);
 		}
 	}
 }
