@@ -22,33 +22,33 @@ namespace Rasterizer
 			this.data = new T[size.Width * size.Height];
 		}
 
-    public MonochromeImage(MonochromeImage<T> other)
-    {
-      this.size = other.size;
+		public MonochromeImage(MonochromeImage<T> other)
+		{
+			this.size = other.size;
 			this.data = new T[size.Width * size.Height];
-      for (int x = 0; x < this.size.Width; x++)
-      {
-        for (int y = 0; y < this.size.Height; y++)
-        {
-          this.data[x * this.size.Width + y] = other.data[x * this.size.Width + y];
-        }
-      }
-    }
+			for (int x = 0; x < this.size.Width; x++)
+			{
+				for (int y = 0; y < this.size.Height; y++)
+				{
+					this.data[x * this.size.Width + y] = other.data[x * this.size.Width + y];
+				}
+			}
+		}
 
-    public MonochromeImage(Bitmap image)
-    {
-      this.size = new Size(bmp.Size);
-      for(int y = 0; y < this.size.Height; y++)
+		public MonochromeImage(Bitmap image)
+		{
+			this.size = new Size(bmp.Size);
+			for(int y = 0; y < this.size.Height; y++)
 			{
 				for(int x = 0; x < this.size.Width; x++)
 				{
-          Color c = image.GetPixel(x, y);
+					Color c = image.GetPixel(x, y);
 					float pixelValue = (c.R * 2126 + c.G * 7152 + c.B * 0722)/2550000f;
 					float invValue = 1f - pixelValue;
 					this.SetValue(x, y, (1f - invValue * invValue) * 255);
 				}
 			}
-    }
+		}
 
 		/// <summary>
 		/// Bitmap rendering of the image
@@ -69,8 +69,8 @@ namespace Rasterizer
 			return output;
 		}
 
-    public abstract int GetValue(int x, int y);
-    public abstract void SetValue(int x, int y, int value);
+		public abstract int GetValue(int x, int y);
+		public abstract void SetValue(int x, int y, int value);
 
 		public void SetValue(int x, int y, float value)
 		{
