@@ -1,3 +1,6 @@
+using System;
+using System.Drawing;
+
 namespace Rasterizer
 {
 	/// <summary>
@@ -5,19 +8,41 @@ namespace Rasterizer
 	/// </summary>
 	public class GrayscaleImage : MonochromeImage<float>
 	{
-		public int GetValue(int x, int y)
+		public GrayscaleImage(Size size, float[] data) : base(size, data){}
+		public GrayscaleImage(Size size) : base(size){}
+		public GrayscaleImage(MonochromeImage<float> other) : base(other){}
+		public GrayscaleImage(Bitmap image) : base(image){}
+
+		public override int GetValue(int x, int y)
 		{
 			return Math.Clamp((int)data[x * size.Width + y], 0, 255);
 		}
 
-		public void SetValue(int x, int y, int value)
+		public override void SetValue(int x, int y, int value)
 		{
 			data[x * size.Width + y] = value;
 		}
 
-		public void SetValue(int x, int y, float value)
+		public override void SetValue(int x, int y, float value)
 		{
 			data[x * size.Width + y] = value;
+		}
+
+		public GrayscaleImage Blurred(float factor)
+		{
+			var smaller = ResizeBitmap(GetBitmap(), (int)(size.Width / factor), (int)(size.Height / factor));
+			var blurred = ResizeBitmap(smaller, size.Width, size.Height);
+			return new GrayscaleImage(blurred);
+		}
+
+		private static Bitmap ResizeBitmap(Bitmap bmp, int width, int height)
+		{
+			var result = new Bitmap(width, height);
+			using (Graphics g = Graphics.FromImage(result))
+			{
+				g.DrawImage(bmp, 0, 0, width, height);
+			}
+			return result;
 		}
 	}
 }

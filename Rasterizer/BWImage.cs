@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace Rasterizer
 {
 	/// <summary>
@@ -5,12 +7,17 @@ namespace Rasterizer
 	/// </summary>
 	public class BWImage : MonochromeImage<bool>
 	{
-		public int GetValue(int x, int y)
+		public BWImage(Size size, bool[] data) : base(size, data){}
+		public BWImage(Size size) : base(size){}
+		public BWImage(MonochromeImage<bool> other) : base(other){}
+		public BWImage(Bitmap image) : base(image){}
+
+		public override int GetValue(int x, int y)
 		{
 			return data[x * size.Width + y] ? 0 : 255;
 		}
 
-		public void SetValue(int x, int y, int value)
+		public override void SetValue(int x, int y, int value)
 		{
 			data[x * size.Width + y] = value < 128;
 		}

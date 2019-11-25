@@ -30,13 +30,16 @@ namespace Rasterizer
 		/// <param name="rotateForLargerPrint">If true, the image will be rotated 90 degrees if that would increase the printed size.</param>
 		/// <param name="enhancers">Array of image enhancers to use - they will be applied in this order.</param>
 		/// <returns></returns>
-		public byte[] ImageToPrintCommands(Bitmap inputImage, IDitherer ditherer, bool rotateForLargerPrint = true, IEnhancer[] enhancers = {})
+		public byte[] ImageToPrintCommands(Bitmap inputImage, IDitherer ditherer, bool rotateForLargerPrint = true, IEnhancer[] enhancers = null)
 		{
 			var resized = ScaleToFitPage(inputImage, rotateForLargerPrint);
 			var enhanced = new GrayscaleImage(resized);
-			foreach (IEnhancer enhancer in enhancers)
+			if (enhancers != null)
 			{
-				enhanced = enhancer.Enhance(enhanced);
+				foreach (IEnhancer enhancer in enhancers)
+				{
+					enhanced = enhancer.Enhance(enhanced);
+				}
 			}
 			BWImage result = ditherer.GetBWImage(enhanced);
 			byte[] printCommands = RasterToPrintCommands(result);

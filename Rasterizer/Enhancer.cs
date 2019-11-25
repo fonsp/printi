@@ -56,7 +56,7 @@ namespace Rasterizer
 			float[] mapping = new float[256];
 			for (int i = 0; i < pixelValues.Count; i++)
 			{
-				mapping[(int)pixelValue[i]] = (int)(i * 255f / pixelValues.Count);
+				mapping[(int)pixelValues[i]] = (int)(i * 255f / pixelValues.Count);
 			}
 
 			GrayscaleImage result = new GrayscaleImage(image.size);

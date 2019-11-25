@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 
 namespace Rasterizer
@@ -37,7 +38,8 @@ namespace Rasterizer
 
 		public MonochromeImage(Bitmap image)
 		{
-			this.size = new Size(bmp.Size);
+			this.size = image.Size;
+			this.data = new T[size.Width * size.Height];
 			for(int y = 0; y < this.size.Height; y++)
 			{
 				for(int x = 0; x < this.size.Width; x++)
@@ -61,7 +63,7 @@ namespace Rasterizer
 			{
 				for(int x = 0; x < size.Width; x++)
 				{
-					int value = (int)Math.Sqrt(1f - GetValue(x, y) / 255f);
+					int value = (int)(Math.Sqrt(1f - GetValue(x, y) / 255f) * 255f);
 					Color c = Color.FromArgb(value, value, value);
 					output.SetPixel(x, y, c);
 				}
@@ -72,25 +74,9 @@ namespace Rasterizer
 		public abstract int GetValue(int x, int y);
 		public abstract void SetValue(int x, int y, int value);
 
-		public void SetValue(int x, int y, float value)
+		public virtual void SetValue(int x, int y, float value)
 		{
 			SetValue(x, y, (int)value);
 		}
-
-		public MonochromeImage<T> Blurred(float factor)
-		{
-			var smaller = ResizeBitmap(GetBitmap(), (int)(size.Width / factor), (int)(size.Height / factor));
-			var blurred = ResizeBitmap(smaller, size.Width, size.Height);
-			return new MonochromeImage<T>(blurred);
-		}
-
-		private static Bitmap ResizeBitmap(Bitmap bmp, int width, int height)
-		{
-			var result = new Bitmap(width, height);
-			using (Graphics g = Graphics.FromImage(result))
-			{
-				g.DrawImage(bmp, 0, 0, width, height);
-			}
-			return result;
 	}
 }

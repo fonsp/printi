@@ -25,7 +25,6 @@ namespace Rasterizer
 	{
 		public byte threshold;
 		private Size size;
-		private byte[,] data;
 
 		public BurkesDitherer(byte threshold = 96)
 		{
@@ -49,7 +48,7 @@ namespace Rasterizer
 
 		public BWImage GetBWImage(GrayscaleImage image)
 		{
-			size = image.Size;
+			size = image.size;
 			size.Width = (size.Width / 8) * 8;
 			GrayscaleImage workspace = new GrayscaleImage(image);
 			BWImage output = new BWImage(size);
