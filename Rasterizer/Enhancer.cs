@@ -74,6 +74,13 @@ namespace Rasterizer
 
 	public class QuantileEnhancer : IEnhancer
 	{
+		public readonly float factor;
+
+		public QuantileEnhancer(float factor)
+		{
+			this.factor = factor;
+		}
+
 		public GrayscaleImage Enhance(GrayscaleImage image)
 		{
 			var pixelValues = new List<float>(image.data);
@@ -89,7 +96,8 @@ namespace Rasterizer
 			{
 				for (int y = 0; y < result.size.Height; y++)
 				{
-					var newValue = mapping[(int)image.GetValue(x, y)];
+					var mappedValue = mapping[(int)image.GetValue(x, y)];
+					var newValue = image.GetValue(x, y) * (1f - factor) + mappedValue * factor;
 					result.SetValue(x, y, newValue);
 				}
 			}
