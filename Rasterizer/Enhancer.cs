@@ -15,14 +15,42 @@ namespace Rasterizer
 		GrayscaleImage Enhance(GrayscaleImage image);
 	}
 
-	public class HDREnhancer : IEnhancer
+	public class HDREnhancer : BlurBasedEnhancer
 	{
 		public readonly float factor;
-		public readonly float numSegments;
 
-		public HDREnhancer(float factor, float numSegments=4)
+		public HDREnhancer(float factor, float numSegments = 4) : base(numSegments)
 		{
 			this.factor = factor;
+		}
+
+		protected override float EnhancePixel(float sharp, float blurred)
+		{
+			return sharp + (127 - blurred) * factor;
+		}
+	}
+
+	public class ContrastEnhancer : BlurBasedEnhancer
+	{
+		public readonly float factor;
+
+		public ContrastEnhancer(float factor, float numSegments = 4) : base(numSegments)
+		{
+			this.factor = factor;
+		}
+
+		protected override float EnhancePixel(float sharp, float blurred)
+		{
+			return sharp * (1f + factor) - blurred * factor;
+		}
+	}
+
+	public abstract class BlurBasedEnhancer : IEnhancer
+	{
+		public readonly float numSegments;
+
+		public BlurBasedEnhancer(float numSegments=4)
+		{
 			this.numSegments = numSegments;
 		}
 
@@ -41,10 +69,7 @@ namespace Rasterizer
 			return result;
 		}
 
-		private float EnhancePixel(float sharp, float blurred)
-		{
-			return sharp + (127 - blurred) * factor;
-		}
+		protected abstract float EnhancePixel(float sharp, float blurred);
 	}
 
 	public class QuantileEnhancer : IEnhancer
