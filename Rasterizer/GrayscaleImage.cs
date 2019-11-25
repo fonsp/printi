@@ -11,7 +11,7 @@ namespace Rasterizer
 		public GrayscaleImage(Size size, float[] data) : base(size, data){}
 		public GrayscaleImage(Size size) : base(size){}
 		public GrayscaleImage(MonochromeImage<float> other) : base(other){}
-		public GrayscaleImage(Bitmap image) : base(image){}
+		public GrayscaleImage(Bitmap image, bool visualSpace = true) : base(image, visualSpace){}
 
 		public override int GetValue(int x, int y)
 		{
@@ -30,9 +30,9 @@ namespace Rasterizer
 
 		public GrayscaleImage Blurred(float factor)
 		{
-			var smaller = ResizeBitmap(GetBitmap(), (int)(size.Width / factor), (int)(size.Height / factor));
+			var smaller = ResizeBitmap(GetBitmap(false), (int)(size.Width / factor), (int)(size.Height / factor));
 			var blurred = ResizeBitmap(smaller, size.Width, size.Height);
-			return new GrayscaleImage(blurred);
+			return new GrayscaleImage(blurred, false);
 		}
 
 		private static Bitmap ResizeBitmap(Bitmap bmp, int width, int height)

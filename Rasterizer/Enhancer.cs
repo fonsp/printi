@@ -35,10 +35,15 @@ namespace Rasterizer
 			{
 				for (int y = 0; y < image.size.Height; y++)
 				{
-					result.SetValue(x, y, image.GetValue(x, y) - blurred.GetValue(x, y) * this.factor);
+					result.SetValue(x, y, EnhancePixel(image.GetValue(x, y), blurred.GetValue(x, y)));
 				}
 			}
 			return result;
+		}
+
+		private float EnhancePixel(float sharp, float blurred)
+		{
+			return sharp + (127 - blurred) * factor;
 		}
 	}
 

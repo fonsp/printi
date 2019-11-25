@@ -36,7 +36,7 @@ namespace Rasterizer
 			}
 		}
 
-		public MonochromeImage(Bitmap image)
+		public MonochromeImage(Bitmap image, bool visualSpace = true)
 		{
 			this.size = image.Size;
 			this.data = new T[size.Width * size.Height];
@@ -44,6 +44,8 @@ namespace Rasterizer
 			{
 				for(int y = 0; y < size.Height; y++)
 				{
+					Color color = image.GetPixel(x, y);
+					float gray = visualSpace ? ColorToGray(color) : (color.R + color.G + color.B) / 3;
 					this.SetValue(x, y, ColorToGray(image.GetPixel(x, y)));
 				}
 			}
@@ -53,14 +55,16 @@ namespace Rasterizer
 		/// Bitmap rendering of the image
 		/// </summary>
 		/// <returns></returns>
-		public Bitmap GetBitmap()
+		public Bitmap GetBitmap(bool visualSpace = true)
 		{
 			var output = new Bitmap(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 			for(int x = 0; x < size.Width; x++)
 			{
 				for(int y = 0; y < size.Height; y++)
 				{
-					output.SetPixel(x, y, ColorFromGray(GetValue(x, y)));
+					int gray = GetValue(x, y);
+					Color color = visualSpace ? ColorFromGray(gray) : Color.FromArgb(gray, gray, gray);
+					output.SetPixel(x, y, color);
 				}
 			}
 			return output;
@@ -81,7 +85,7 @@ namespace Rasterizer
 			return (1f - invValue * invValue) * 255;
 		}
 
-		private static Color ColorFromGray(float gray)
+		private static Color ColorFromGray(int gray)
 		{
 			var invValue = Math.Sqrt(1f - gray / 255f);
 			int value = (int)((1f - invValue) * 255f);

@@ -10,7 +10,7 @@ namespace Rasterizer
 		public BWImage(Size size, bool[] data) : base(size, data){}
 		public BWImage(Size size) : base(size){}
 		public BWImage(MonochromeImage<bool> other) : base(other){}
-		public BWImage(Bitmap image) : base(image){}
+		public BWImage(Bitmap image, bool visualSpace = true) : base(image, visualSpace){}
 
 		public override int GetValue(int x, int y)
 		{
