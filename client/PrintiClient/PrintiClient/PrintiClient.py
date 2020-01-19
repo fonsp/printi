@@ -75,7 +75,7 @@ def waitForPrintiConnection(firstGoogleFailure=True, firstPrintiFailure=True):
 	while True:
 		if ping("https://www.google.com/", 10) or ping("https://www.google.com/", 10):
 			shouldPrintDetailedInstructions = False
-			if ping("https://printi.me/ping", 10):
+			if ping("https://api.printi.me/", 10):
 				return firstGoogleFailure
 			else:
 				if firstPrintiFailure:
