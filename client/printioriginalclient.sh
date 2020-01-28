@@ -12,7 +12,7 @@ do
 		extension="${downloadedfile#*.}"
 		newname=$(ls .. | wc -l).$extension
 
-		mv "$downloadedfile" ../$newname
+		mv "./$downloadedfile" ../$newname
 
 		#! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
 		convert ../$newname -rotate "90>" ../toprint.BMP
