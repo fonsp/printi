@@ -15,14 +15,14 @@ do
 		mv "./$downloadedfile" ../$newname
 
 		#! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
-		convert ../$newname -rotate "90>" ../toprint.BMP
+		convert ../$newname -rotate "90>" ../toprint.PNG
 
-		height=$(identify -format "%h" ../toprint.BMP)
+		height=$(identify -format "%h" ../toprint.PNG)
 		if [ $height -le 576 ]
 		then
-			lp -o orientation-requested=4 ../toprint.BMP
+			lp -o orientation-requested=4 ../toprint.PNG
 		else
-			lp -o orientation-requested=3 ../toprint.BMP
+			lp -o orientation-requested=3 ../toprint.PNG
 		fi
 	fi
 done
