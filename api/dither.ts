@@ -1,5 +1,4 @@
 import canvasdither from "https://esm.sh/canvas-dither@1.0.1"
-// import { EmulatedCanvas2D } from "https://esm.sh/canvas-dither@1.0.1"
 import { createCanvas, ImageData, loadImage, EmulatedCanvas2D, EmulatedCanvas2DContext } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
 
 export const dither_bytes_to_imagedata = async (img_contents: Uint8Array) => {

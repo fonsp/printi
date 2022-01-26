@@ -5,6 +5,5 @@
     "prettier.singleQuote": false,
     "[typescript]": {
         "editor.formatOnSave": true,
-        
     }
 }
