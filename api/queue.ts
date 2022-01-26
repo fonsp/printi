@@ -2,9 +2,13 @@ import * as _ from "./imports/lodash.ts"
 
 type item_type = Record<string, unknown>
 
-const queues = new Map<string, Array<item_type>>()
+/** Queues with printis for each printer. These have not yet been printed, and are available on request. */
+export const queues = new Map<string, Array<item_type>>()
 
-const waiting = new Map<string, Array<Function>>()
+/** A short-circuit for `queues`: if a printer is *currently* waiting for the latest and greatest printi, then its callback function is stored here.
+ *
+ * When a new printi arrives, we first check this map to see if anyone wants it *right now*, and if not, it is added to the `queues`. */
+export const waiting = new Map<string, Array<Function>>()
 
 export const add_to_queue = (printername: string, data: item_type) => {
     console.log("Adding to queue: ", printername, data)
@@ -27,6 +31,16 @@ export const add_to_queue = (printername: string, data: item_type) => {
     queues.get(printername)!.push(data)
 }
 
+/** Return a promise that resolves:
+ * - if printis were already waiting, then the next printi is returned
+ * - if not, then the promise waits for the next printi to arrive, and returns it
+ *
+ * If no printis were queued, and nothing arrives within `timeout` ms, then the promise rejects.
+ *
+ * @param printername The name of the printer to get printis for
+ * @param timeout The timeout in ms
+ * @returns A promise that resolves with the next printi
+ */
 export const wait_for_item = async (printername: string, timeout: number) => {
     if (queues.has(printername)) {
         const queue = queues.get(printername)!
