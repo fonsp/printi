@@ -8,7 +8,7 @@ export const queues = new Map<string, Array<item_type>>()
 /** A short-circuit for `queues`: if a printer is *currently* waiting for the latest and greatest printi, then its callback function is stored here.
  *
  * When a new printi arrives, we first check this map to see if anyone wants it *right now*, and if not, it is added to the `queues`. */
-export const waiting = new Map<string, Array<Function>>()
+export const waiting = new Map<string, Array<(found: item_type) => void>>()
 
 export const add_to_queue = (printername: string, data: item_type) => {
     console.log("Adding to queue: ", printername, data)
@@ -52,7 +52,7 @@ export const wait_for_item = async (printername: string, timeout: number) => {
     }
 
     if (!waiting.has(printername)) {
-        waiting.set(printername, new Array<Function>())
+        waiting.set(printername, new Array<(found: item_type) => void>())
     }
     const waiters = waiting.get(printername)!
     const waiter = new Promise<item_type>((resolve, reject) => {
