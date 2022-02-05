@@ -263,3 +263,4 @@ env/
 venv/
 
 client/PrintiConfigServer/PrintiConfigServer/index.html
+.DS_Store
