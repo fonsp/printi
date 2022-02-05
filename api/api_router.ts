@@ -46,6 +46,18 @@ export const api_router = new Router({
                     add_to_queue(printer_name, { data: await dither_url_to_png_data(data_url) })
                 }) ?? []
             )
+        } else if (body.type === "form-data") {
+            if (value instanceof FormDataReader) {
+                for await (const [_filename, data_ref] of value.stream({
+                    maxFileSize: 10 * 1024 * 1024,
+                    maxSize: 10 * 1024 * 1024,
+                })) {
+                    const data = typeof data_ref === "string" ? data_ref : data_ref.content
+                    if (data instanceof Uint8Array) {
+                        add_to_queue(printer_name, { data: await dither_bytes_to_png_data(data) })
+                    }
+                }
+            }
         } else {
             console.log("Unknown body type: ", body.type, value)
         }
