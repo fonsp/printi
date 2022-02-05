@@ -1,5 +1,5 @@
 import { parse } from "https://deno.land/std@0.122.0/flags/mod.ts"
-import { Application, Router } from "./imports/oak.ts"
+import { Application } from "./imports/oak.ts"
 import { api_router } from "./api_router.ts"
 
 const app = new Application()
@@ -13,6 +13,14 @@ app.use(async (ctx, next) => {
 // Use our API router
 app.use(api_router.routes())
 app.use(api_router.allowedMethods())
+
+// Send static content
+app.use(async (context) => {
+    await context.send({
+        root: `${Deno.cwd()}/api/static`,
+        index: "index.html",
+    })
+})
 
 // 404 message (only runs if the router did not match)
 app.use((ctx) => {
