@@ -22,7 +22,11 @@ export const dither_bytes_to_imagedata = async (img_contents: Uint8Array) => {
 
 export const dither_url_to_png_data = async (url: string | Request | URL) => {
     const dino_data = await (await fetch(url)).arrayBuffer()
-    const { imagedata, canvas, ctx } = await dither_bytes_to_imagedata(new Uint8Array(dino_data))
+    return await dither_bytes_to_png_data(new Uint8Array(dino_data))
+}
+
+export const dither_bytes_to_png_data = async (bytes: Uint8Array) => {
+    const { imagedata, canvas, ctx } = await dither_bytes_to_imagedata(bytes)
 
     ctx.putImageData(imagedata, 0, 0)
     return canvas.toBuffer()
