@@ -1,6 +1,6 @@
-import { Router } from "https://deno.land/x/oak@v10.1.0/mod.ts"
+import { FormDataReader, Router } from "https://deno.land/x/oak@v10.1.0/mod.ts"
 
-import { dither_url_to_png_data } from "./dither.ts"
+import { dither_bytes_to_png_data, dither_url_to_png_data } from "./dither.ts"
 const dino_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Xixia_Dinosaur_Park_12.jpg/160px-Xixia_Dinosaur_Park_12.gif"
 
 import { add_to_queue, wait_for_item } from "./queue.ts"
@@ -24,7 +24,7 @@ export const api_router = new Router({
     })
     .get("/next_in_queue/:printername?", async (ctx) => {
         try {
-            const item = await wait_for_item(ctx.params.printername ?? "printi", 5000)
+            const item = await wait_for_item(ctx.params.printername ?? "printi", 30 * 1000)
 
             ctx.response.body = item.data as Uint8Array
             ctx.response.type = "image/png"
@@ -32,6 +32,25 @@ export const api_router = new Router({
             ctx.response.body = `Nothing received! ${e.message}`
             ctx.response.status = 404
         }
+    })
+    .post("/submitimages/:printername?", async (ctx) => {
+        const printer_name = ctx.params.printername ?? "printi"
+
+        const body = await ctx.request.body()
+        const value = await body.value
+        console.log(body, value)
+        if (body.type === "json") {
+            await Promise.all(
+                value?.images?.map(async (img_str: string) => {
+                    const data_url = "data:application/octet-stream;base64," + img_str
+                    add_to_queue(printer_name, { data: await dither_url_to_png_data(data_url) })
+                }) ?? []
+            )
+        } else {
+            console.log("Unknown body type: ", body.type, value)
+        }
+
+        ctx.response.body = `Added ${ctx.params.printername} to queue!`
     })
     .get("/dino", async (ctx) => {
         ctx.response.body = await dither_url_to_png_data(dino_url)
