@@ -18,10 +18,10 @@ export const api_router = new Router({
     .get("/hello/:name?", (ctx) => {
         ctx.response.body = `Hello ${ctx.params.name}!`
     })
-    .get("/add_to_queue/:printername?", async (ctx) => {
-        add_to_queue(ctx.params.printername ?? "printi", { data: await dither_url_to_png_data(dino_url) })
-        ctx.response.body = `Added ${ctx.params.printername} to queue!`
-    })
+    // .get("/add_to_queue/:printername?", async (ctx) => {
+    //     add_to_queue(ctx.params.printername ?? "printi", { data: await dither_url_to_png_data(dino_url) })
+    //     ctx.response.body = `Added ${ctx.params.printername} to queue!`
+    // })
     .get("/next_in_queue/:printername?", async (ctx) => {
         try {
             const item = await wait_for_item(ctx.params.printername ?? "printi", 30 * 1000)
