@@ -476,7 +476,7 @@
 
                 var filereadersupport = 'FileReader' in window;
 
-                if (false && !ie && !isNotAnImageFile && filereadersupport) {
+                if (!ie && !isNotAnImageFile && filereadersupport) {
                     // We will compress the image, and send it to the API as a base64 encoded string.
                     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
