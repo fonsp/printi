@@ -1,6 +1,5 @@
-import { assertEquals, assert, assertRejects, assertStringIncludes, AssertionError } from "https://deno.land/std@0.122.0/testing/asserts.ts"
+import { assertEquals, AssertionError } from "https://deno.land/std@0.122.0/testing/asserts.ts"
 
-import { Queue } from "./queue.ts"
 import { dither_bytes_to_bwimage } from "./dither.ts"
 import { to_h58 } from "./h58.ts"
 import { fetch_uint8 } from "./api_router.ts"
@@ -19,6 +18,7 @@ const hexstring = (data: Uint8Array) =>
         .map((val) => ("0" + val.toString(16)).slice(-2))
         .join(" ")
 
+// deno-lint-ignore no-unused-vars
 const newline_every_n = (s: string, n: number) =>
     _.chunk(Array.from(s), n, null)
         .map((chunk: string[]) => chunk.join("") + "\n")
