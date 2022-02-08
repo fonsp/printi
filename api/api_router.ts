@@ -2,7 +2,7 @@ import { FormDataReader, Router } from "https://deno.land/x/oak@v10.1.0/mod.ts"
 import { BWImage } from "./BWImage.ts"
 
 import { dither_bytes_to_bwimage } from "./dither.ts"
-const dino_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Xixia_Dinosaur_Park_12.jpg/160px-Xixia_Dinosaur_Park_12.gif"
+const dino_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Xixia_Dinosaur_Park_12.jpg/160px-Xixia_Dinosaur_Park_12.png"
 
 import { Queue } from "./queue.ts"
 import { to_png, to_h58 } from "./h58.ts"
@@ -11,7 +11,7 @@ const printer_size = (name: string) => (name === "printi" ? 576 : 384)
 
 const api_queue = new Queue<BWImage>()
 
-const fetch_uint8 = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer())
+export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer())
 
 export const api_router = new Router({
     prefix: "/api",
@@ -61,7 +61,10 @@ export const api_router = new Router({
             await Promise.all(
                 value?.images?.map(async (img_str: string) => {
                     const data_url = "data:application/octet-stream;base64," + img_str
-                    api_queue.add_to_queue(printer_name, await dither_bytes_to_bwimage(await fetch_uint8(data_url), printer_size(printer_name)))
+                    const data_bytes = await fetch_uint8(data_url)
+                    const bwimage = await dither_bytes_to_bwimage(data_bytes, printer_size(printer_name))
+                    console.log(bwimage)
+                    api_queue.add_to_queue(printer_name, bwimage)
                 }) ?? []
             )
         } else if (body.type === "form-data") {
