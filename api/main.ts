@@ -11,8 +11,9 @@ app.use(async (ctx, next) => {
 })
 
 // Use our API router
-app.use(api_router.routes())
-app.use(api_router.allowedMethods())
+const router = api_router()
+app.use(router.routes())
+app.use(router.allowedMethods())
 
 // Send static content
 app.use(async (context) => {
