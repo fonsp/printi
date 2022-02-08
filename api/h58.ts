@@ -77,9 +77,11 @@ export const to_png = (raster: BWImage) => {
     const rgba_data = new Uint8ClampedArray(raster.bit_data.length * 8 * 4)
     Array.from(raster.bit_data).forEach((byte, i) => {
         for (let j = 0; j < 8; j++) {
-            const black = ((byte >> j) & 1) > 0
+            // bytes are reversed
+            const bit_index = 7 - j
+            const is_black = ((byte >> bit_index) & 1) > 0
 
-            rgba_data.set(black ? [0, 0, 0, 255] : [255, 255, 255, 255], i * 8 * 4 + j * 4)
+            rgba_data.set(is_black ? [0, 0, 0, 255] : [255, 255, 255, 255], i * 8 * 4 + j * 4)
         }
     })
     // const rgba_data = Array.from(raster.bit_data).flatMap((byte) => {
@@ -126,7 +128,8 @@ export const to_h58 = (raster: BWImage): Uint8Array => {
     const output = new Uint8Array(4 + bytesPerLine * height + num_slices * (4 + 4 + 3))
     let output_offset = 0
     const add_to_output = (bytes: ArrayLike<number>) => {
-        output.set(bytes, (output_offset += bytes.length))
+        output.set(bytes, output_offset)
+        output_offset += bytes.length
     }
     add_to_output([0x1b, 0x40])
     for (let y = 0; y < height; y += 24) {

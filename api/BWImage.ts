@@ -14,13 +14,14 @@ export function imagedata_to_bwimage(imagedata: ImageData): BWImage {
     const bit_data = new Uint8Array((width * height) / 8)
     const input_data = imagedata.data
     for (let y = 0; y < height; y++) {
+        const input_offset = y * input_width
         const offset = y * width
 
         for (let x = 0; x < input_width; x += 8) {
             let result = 0
             const num_bits = Math.min(8, input_width - x)
             for (let bit_index = 0; bit_index < num_bits; bit_index++) {
-                result |= (input_data[(offset + x + bit_index) * 4] > 0 ? 0 : 1) << bit_index
+                result |= (input_data[(input_offset + x + bit_index) * 4] === 0 ? 128 : 0) >> bit_index
             }
             bit_data[(offset + x) >> 3] = result
         }
