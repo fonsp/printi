@@ -1,24 +1,22 @@
 import * as _ from "./imports/lodash.ts"
 
-type item_type<T> = T
-
 export class Queue<T> {
     /** Queues with printis for each printer. These have not yet been printed, and are available on request. */
-    public queues = new Map<string, Array<item_type<T>>>()
+    public queues = new Map<string, Array<T>>()
 
     /** A short-circuit for `queues`: if a printer is *currently* waiting for the latest and greatest printi, then its callback function is stored here.
      *
      * When a new printi arrives, we first check this map to see if anyone wants it *right now*, and if not, it is added to the `queues`. */
-    public waiting = new Map<string, Array<(found: item_type<T>) => void>>()
+    public waiting = new Map<string, Array<(found: T) => void>>()
 
-    public add_to_queue = (printername: string, data: item_type<T>) => {
-        console.log("Adding to queue: ", printername, data)
+    public add_to_queue = (printername: string, data: T) => {
+        // console.log("Adding to queue: ", printername, data)
         if (this.waiting.has(printername)) {
-            console.log("Waiters for this printer")
+            // console.log("Waiters for this printer")
             const waiters = this.waiting.get(printername)!
             if (waiters.length > 0) {
                 const item = _.first(waiters)
-                console.log("Found", item)
+                // console.log("Found", item)
                 waiters.splice(waiters.indexOf(item), 1)
                 if (waiters.length === 0) this.waiting.delete(printername)
                 item(data)
@@ -43,22 +41,22 @@ export class Queue<T> {
      * @returns A promise that resolves with the next printi
      */
     public wait_for_item = async (printername: string, timeout: number) => {
-        if (this.queues.has(printername)) {
-            const queue = this.queues.get(printername)!
-            if (queue.length > 0) {
-                const item = queue.shift()!
+        const queue = this.queues.get(printername)
+        if (queue) {
+            const item = queue.shift()
+            if (item) {
                 if (queue.length === 0) this.queues.delete(printername)
                 return item
             }
         }
 
         if (!this.waiting.has(printername)) {
-            this.waiting.set(printername, new Array<(found: item_type<T>) => void>())
+            this.waiting.set(printername, new Array<(found: T) => void>())
         }
         const waiters = this.waiting.get(printername)!
-        const waiter = new Promise<item_type<T>>((resolve, reject) => {
+        const waiter = new Promise<T>((resolve, reject) => {
             const handle_ref = { current: -1 }
-            const f = (data: item_type<T>) => {
+            const f = (data: T) => {
                 resolve(data)
                 if (handle_ref.current !== -1) {
                     clearTimeout(handle_ref.current)

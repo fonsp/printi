@@ -1,5 +1,5 @@
 import canvasdither from "https://esm.sh/canvas-dither@1.0.1"
-import { createCanvas, ImageData, loadImage, EmulatedCanvas2D, EmulatedCanvas2DContext } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
+import { createCanvas, ImageData, loadImage } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
 
 import { fitting_size } from "./resize.ts"
 import { imagedata_to_bwimage } from "./BWImage.ts"

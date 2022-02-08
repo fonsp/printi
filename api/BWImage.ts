@@ -1,4 +1,4 @@
-import { createCanvas, ImageData, loadImage, EmulatedCanvas2D, EmulatedCanvas2DContext } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
+import { ImageData } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
 
 export type BWImage = {
     size: [number, number]

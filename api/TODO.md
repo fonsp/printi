@@ -1,6 +1,5 @@
 TODO:
 - Contrast & brightness?
-- Don't allow big files
 - rate limit?
 
 Done: 
@@ -9,3 +8,4 @@ Done:
 - Raw image data in queue
 - Implement printer driver
 - Rotate & resize image
+- Don't allow big files
