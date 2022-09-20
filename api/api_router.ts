@@ -1,4 +1,4 @@
-import { FormDataReader, Router } from "https://deno.land/x/oak@v10.1.0/mod.ts"
+import { FormDataReader, Router } from "./imports/oak.ts"
 import { BWImage } from "./BWImage.ts"
 
 import { dither_bytes_to_bwimage } from "./dither.ts"

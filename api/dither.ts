@@ -1,4 +1,4 @@
-import canvasdither from "https://esm.sh/canvas-dither@1.0.1"
+import canvasdither from "https://esm.sh/canvas-dither@1.0.1?pin=v95"
 import { createCanvas, ImageData, loadImage } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
 
 import { fitting_size } from "./resize.ts"

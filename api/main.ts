@@ -1,4 +1,4 @@
-import { parse } from "https://deno.land/std@0.122.0/flags/mod.ts"
+import { parse } from "https://deno.land/std@0.156.0/flags/mod.ts"
 import { Application } from "./imports/oak.ts"
 import { api_router } from "./api_router.ts"
 

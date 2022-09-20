@@ -1,4 +1,4 @@
-import { assertEquals, AssertionError } from "https://deno.land/std@0.122.0/testing/asserts.ts"
+import { assertEquals, AssertionError } from "https://deno.land/std@0.156.0/testing/asserts.ts"
 
 import { dither_bytes_to_bwimage } from "./dither.ts"
 import { to_h58 } from "./h58.ts"

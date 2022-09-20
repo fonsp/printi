@@ -1,8 +1,8 @@
-import { Application } from "https://deno.land/x/oak@v10.1.0/mod.ts"
+import { Application } from "./imports/oak.ts"
 import { superoak } from "https://deno.land/x/superoak@4.6.0/mod.ts"
 
 import { api_router } from "./api_router.ts"
-import { assertEquals, assert, assertStringIncludes } from "https://deno.land/std@0.122.0/testing/asserts.ts"
+import { assertEquals, assert, assertStringIncludes } from "https://deno.land/std@0.156.0/testing/asserts.ts"
 
 const app = new Application({
     logErrors: false,

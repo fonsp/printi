@@ -1,4 +1,4 @@
-import { assertEquals, assert, assertRejects } from "https://deno.land/std@0.122.0/testing/asserts.ts"
+import { assertEquals, assert, assertRejects } from "https://deno.land/std@0.156.0/testing/asserts.ts"
 
 import { Queue } from "./queue.ts"
 
