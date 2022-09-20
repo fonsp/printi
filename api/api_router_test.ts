@@ -7,10 +7,13 @@ import { assertEquals, assert, assertStringIncludes } from "https://deno.land/st
 const app = new Application({
     logErrors: false,
 })
-const timeout = 1000
-const router = api_router(timeout)
+const timeout_ms = 1000
+const password = "zzz"
+const router = api_router({ timeout_ms, inspection_password: password })
 app.use(router.routes())
 app.use(router.allowedMethods())
+
+const auth_header = (password: string) => `Basic ${btoa(`zz:${password}`)}`
 
 // Send simple GET request
 Deno.test("it should support the Oak framework", async () => {
@@ -21,7 +24,7 @@ Deno.test("it should support the Oak framework", async () => {
     })
 })
 
-Deno.test("Submit files with FormData", async () => {
+Deno.test("Submit files with FormData", async (t) => {
     const lijntje2_bytes = await Deno.readFile("api/static/lijntje2.png")
 
     let request = await superoak(app)
@@ -35,6 +38,28 @@ Deno.test("Submit files with FormData", async () => {
             assertEquals(r.text, "2 image(s) submitted to the queue")
         })
 
+    await t.step("Test /queuesize", async () => {
+        request = await superoak(app)
+        await request.get("/api/queuesize").then((r) => {
+            assertEquals(r.status, 401)
+        })
+        request = await superoak(app)
+        await request
+            .get("/api/queuesize")
+            .set("Authorization", auth_header("asdf"))
+            .then((r) => {
+                assertEquals(r.status, 401)
+            })
+        request = await superoak(app)
+        await request
+            .get("/api/queuesize")
+            .set("Authorization", auth_header(password))
+            .then((r) => {
+                assertEquals(r.status, 200)
+                assertEquals(r.text, "1 queues and 2 items.")
+            })
+    })
+
     for (let i = 0; i < 2; i++) {
         request = await superoak(app)
         await request
@@ -47,6 +72,15 @@ Deno.test("Submit files with FormData", async () => {
                 assertEquals(r.status, 200)
             })
     }
+
+    request = await superoak(app)
+    await request
+        .get("/api/queuesize")
+        .set("Authorization", auth_header(password))
+        .then((r) => {
+            assertEquals(r.status, 200)
+            assertStringIncludes(r.text, "and 0 items.")
+        })
 
     // request the next image, but cancel the request very quickly
     request = await superoak(app)

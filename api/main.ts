@@ -2,6 +2,9 @@ import { parse } from "https://deno.land/std@0.156.0/flags/mod.ts"
 import { Application } from "./imports/oak.ts"
 import { api_router } from "./api_router.ts"
 
+// Config
+const { port = 8000, password } = parse(Deno.args)
+
 const app = new Application()
 
 // Allow CORS
@@ -11,7 +14,7 @@ app.use(async (ctx, next) => {
 })
 
 // Use our API router
-const router = api_router()
+const router = api_router({ inspection_password: password })
 app.use(router.routes())
 app.use(router.allowedMethods())
 
@@ -29,9 +32,6 @@ app.use((ctx) => {
     ctx.response.body = "Not found!"
     ctx.response.status = 404
 })
-
-// Config
-const port = parse(Deno.args).port ?? 8000
 
 // Run the app
 console.log(`Listening on port ${port}`)

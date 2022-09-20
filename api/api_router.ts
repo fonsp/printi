@@ -1,8 +1,9 @@
 import { FormDataReader, Router } from "./imports/oak.ts"
 import { BWImage } from "./BWImage.ts"
+import * as _ from "./imports/lodash.ts"
 
 import { dither_bytes_to_bwimage } from "./dither.ts"
-const dino_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Xixia_Dinosaur_Park_12.jpg/160px-Xixia_Dinosaur_Park_12.png"
+// const dino_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Xixia_Dinosaur_Park_12.jpg/160px-Xixia_Dinosaur_Park_12.png"
 
 import { Queue } from "./queue.ts"
 import { to_png, to_h58 } from "./h58.ts"
@@ -18,7 +19,7 @@ export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fe
 //     .then((r) => to_png(r))
 //     .catch(() => new Uint8Array([]))
 
-export const api_router = (timeout_ms: number = 30 * 1000, max_size: number = 10 * 1024 * 1024) =>
+export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024, inspection_password = crypto.randomUUID() } = {}) =>
     new Router({
         prefix: "/api",
     })
@@ -31,6 +32,20 @@ export const api_router = (timeout_ms: number = 30 * 1000, max_size: number = 10
         })
         .get("/hello/:name?", (ctx) => {
             ctx.response.body = `Hello ${ctx.params.name}!`
+        })
+        .get("/queuesize", (ctx) => {
+            const auth_val = ctx.request.headers.get("authorization") ?? ""
+
+            const [_username, password] = atob(auth_val.replace(/^Basic /, "")).split(":")
+
+            if (password === inspection_password) {
+                const total_length = _.sum([...api_queue.queues.values()].map((x) => x.length))
+                ctx.response.body = `${api_queue.queues.size} queues and ${total_length} items.`
+            } else {
+                ctx.response.status = 401
+                ctx.response.body = `Unauthorized ${_username} ${password}`
+                ctx.response.headers.set("WWW-Authenticate", `Basic charset="UTF-8"`)
+            }
         })
         .get("/nextinqueue/:printername?", async (ctx) => {
             const printer_name = ctx.params.printername ?? "printi"
