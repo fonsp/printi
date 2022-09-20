@@ -184,7 +184,7 @@ while True:
 		printerName = urllib.parse.unquote(config["printi"]["name"])
 
 		lastOnlineAt = datetime.datetime.now()
-		r = session.get("https://api.printi.me/nextinqueue/"+printerName, timeout=10)
+		r = session.get("https://api.printi.me/nextinqueue/"+printerName, timeout=40)
 		print("response!")
 		print(r.status_code)
 		if r.status_code == 200:
