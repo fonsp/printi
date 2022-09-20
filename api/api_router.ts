@@ -55,7 +55,7 @@ export const api_router = (timeout_ms: number = 30 * 1000, max_size: number = 10
             }
             ctx.request.originalRequest.donePromise.catch(() => {
                 if (item) {
-                    console.log("Failed to write nextinqueue response, adding item back to queue.")
+                    console.debug("Failed to write nextinqueue response, adding item back to queue.")
                     // add it back to the queue, because the client did not receive it!
                     api_queue.add_to_queue(printer_name, item)
                 }

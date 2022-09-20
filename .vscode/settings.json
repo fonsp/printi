@@ -6,5 +6,6 @@
     "prettier.singleQuote": false,
     "[typescript]": {
         "editor.formatOnSave": true,
-    }
+    },
+    "deno.codeLens.test": true
 }

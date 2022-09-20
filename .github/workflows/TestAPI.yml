@@ -1,0 +1,23 @@
+name: Test API
+
+on:
+    workflow_dispatch:
+    push:
+        paths:
+            - "api/**"
+        branches:
+            - main
+    pull_request:
+        paths:
+            - "api/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x # Run with latest stable Deno.
+          
+      - run: deno test --allow-all
