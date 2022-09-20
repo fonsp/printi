@@ -18,7 +18,7 @@ const auth_header = (password: string) => `Basic ${btoa(`zz:${password}`)}`
 // Send simple GET request
 Deno.test("it should support the Oak framework", async () => {
     const request = await superoak(app)
-    await request.get("/api/").then((r) => {
+    await request.get("/").then((r) => {
         assertEquals(r.status, 200)
         assertStringIncludes(r.text, "api time")
     })
@@ -30,7 +30,7 @@ Deno.test("Submit files with FormData", async (t) => {
     let request = await superoak(app)
 
     await request
-        .post("/api/submitimages/testprinter1")
+        .post("/submitimages/testprinter1")
         .attach("img1", new File([lijntje2_bytes], "img1.png"))
         .attach("img2", new File([lijntje2_bytes], "img1.png"))
         .then((r) => {
@@ -40,19 +40,19 @@ Deno.test("Submit files with FormData", async (t) => {
 
     await t.step("Test /queuesize", async () => {
         request = await superoak(app)
-        await request.get("/api/queuesize").then((r) => {
+        await request.get("/queuesize").then((r) => {
             assertEquals(r.status, 401)
         })
         request = await superoak(app)
         await request
-            .get("/api/queuesize")
+            .get("/queuesize")
             .set("Authorization", auth_header("asdf"))
             .then((r) => {
                 assertEquals(r.status, 401)
             })
         request = await superoak(app)
         await request
-            .get("/api/queuesize")
+            .get("/queuesize")
             .set("Authorization", auth_header(password))
             .then((r) => {
                 assertEquals(r.status, 200)
@@ -63,7 +63,7 @@ Deno.test("Submit files with FormData", async (t) => {
     for (let i = 0; i < 2; i++) {
         request = await superoak(app)
         await request
-            .get("/api/nextinqueue/testprinter1")
+            .get("/nextinqueue/testprinter1")
             .set("Accept", "*/*")
             .timeout({
                 deadline: 3000,
@@ -75,7 +75,7 @@ Deno.test("Submit files with FormData", async (t) => {
 
     request = await superoak(app)
     await request
-        .get("/api/queuesize")
+        .get("/queuesize")
         .set("Authorization", auth_header(password))
         .then((r) => {
             assertEquals(r.status, 200)
@@ -85,7 +85,7 @@ Deno.test("Submit files with FormData", async (t) => {
     // request the next image, but cancel the request very quickly
     request = await superoak(app)
     await request
-        .get("/api/nextinqueue/testprinter1")
+        .get("/nextinqueue/testprinter1")
         .set("Accept", "*/*")
         .timeout({
             deadline: 200,
@@ -96,7 +96,7 @@ Deno.test("Submit files with FormData", async (t) => {
 
     request = await superoak(app)
     await request
-        .get("/api/nextinqueue/testprinter1")
+        .get("/nextinqueue/testprinter1")
         .set("Accept", "*/*")
         .then((r) => {
             assertEquals(r.status, 404)
@@ -111,7 +111,7 @@ Deno.test("Cancelled requests", async () => {
     // request the next image, but cancel the request very quickly
     const fast_deadline = 200
     await request
-        .get("/api/nextinqueue/testprinter2")
+        .get("/nextinqueue/testprinter2")
         .set("Accept", "*/*")
         .timeout({
             deadline: fast_deadline,
@@ -124,7 +124,7 @@ Deno.test("Cancelled requests", async () => {
     // submit two images
     request = await superoak(app)
     await request
-        .post("/api/submitimages/testprinter2")
+        .post("/submitimages/testprinter2")
         .attach("img1", new File([lijntje2_bytes], "img1.png"))
         .attach("img2", new File([lijntje2_bytes], "img1.png"))
         .then((r) => {
@@ -136,7 +136,7 @@ Deno.test("Cancelled requests", async () => {
     for (let i = 0; i < 2; i++) {
         request = await superoak(app)
         await request
-            .get("/api/nextinqueue/testprinter2")
+            .get("/nextinqueue/testprinter2")
             .set("Accept", "*/*")
             .timeout({
                 deadline: 3000,
@@ -148,7 +148,7 @@ Deno.test("Cancelled requests", async () => {
 
     request = await superoak(app)
     await request
-        .get("/api/nextinqueue/testprinter2")
+        .get("/nextinqueue/testprinter2")
         .set("Accept", "*/*")
         .then((r) => {
             assertEquals(r.status, 404)
@@ -178,7 +178,7 @@ Deno.test("Submit files with JSON", async () => {
 
     const request = await superoak(app)
     await request
-        .post("/api/submitimages/testprinter3")
+        .post("/submitimages/testprinter3")
         .send(
             JSON.stringify({
                 images: [base64data, base64data],

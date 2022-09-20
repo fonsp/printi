@@ -21,7 +21,7 @@ export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fe
 
 export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024, inspection_password = crypto.randomUUID() } = {}) =>
     new Router({
-        prefix: "/api",
+        // prefix: "/api",
     })
         .get("/", (ctx) => {
             ctx.response.body = "it's api time!!!!!"
