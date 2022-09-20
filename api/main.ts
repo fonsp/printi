@@ -16,12 +16,12 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 
 // Send static content
-app.use(async (context) => {
-    await context.send({
-        root: `${Deno.cwd()}/api/static`,
-        index: "index.html",
-    })
-})
+// app.use(async (context) => {
+//     await context.send({
+//         root: `${Deno.cwd()}/api/static`,
+//         index: "index.html",
+//     })
+// })
 
 // 404 message (only runs if the router did not match)
 app.use((ctx) => {
