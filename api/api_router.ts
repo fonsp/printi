@@ -51,7 +51,7 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
             const printer_name = ctx.params.printername ?? "printi"
 
             const accept = ctx.request.headers.get("accept") ?? "*/*"
-            const output_png = accept.includes("image/png") || accept.includes("text/html")
+            const output_png = accept.includes("image/png") || accept.includes("text/html") || printer_name === "printi" // TODO: this last check should not be there, but I forgot my raspberry pi password so I can't update the client to include the Accept: image/png header :(
 
             let item: null | BWImage = null
             try {
@@ -64,6 +64,8 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
                     ctx.response.body = to_h58(item)
                     ctx.response.type = "application/octet-stream"
                 }
+                const filename = `printi-${crypto.randomUUID()}.${output_png ? `png` : `h58`}`
+                ctx.response.headers.set("Content-Disposition", `inline; filename=\"${filename}\"`)
             } catch (e) {
                 ctx.response.body = `Nothing received! ${e.message}`
                 ctx.response.status = 404
