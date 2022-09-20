@@ -28,7 +28,7 @@ app.use(router.allowedMethods())
 
 // 404 message (only runs if the router did not match)
 app.use((ctx) => {
-    console.log("404 for path: ", ctx.request.url.href)
+    // console.log("404 for path: ", ctx.request.url.href)
     ctx.response.body = "Not found!"
     ctx.response.status = 404
 })

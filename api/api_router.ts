@@ -43,7 +43,7 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
                 ctx.response.body = `${api_queue.queues.size} queues and ${total_length} items.`
             } else {
                 ctx.response.status = 401
-                ctx.response.body = `Unauthorized ${_username} ${password}`
+                ctx.response.body = `Unauthorized`
                 ctx.response.headers.set("WWW-Authenticate", `Basic charset="UTF-8"`)
             }
         })
@@ -110,7 +110,7 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
                     }
                 }
             } else {
-                console.log("/submitimages/: Unknown body type: ", body.type, value)
+                console.debug("/submitimages/: Unknown body type: ", body.type, value)
             }
 
             ctx.response.body = `${num_added} image(s) submitted to the queue`
