@@ -13,10 +13,10 @@ export const api_queue = new Queue<BWImage>()
 
 export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer())
 
-const dino_png = fetch_uint8(dino_url)
-    .then((r) => dither_bytes_to_bwimage(r, printer_size("printi")))
-    .then((r) => to_png(r))
-    .catch(() => new Uint8Array([]))
+// const dino_png = fetch_uint8(dino_url)
+//     .then((r) => dither_bytes_to_bwimage(r, printer_size("printi")))
+//     .then((r) => to_png(r))
+//     .catch(() => new Uint8Array([]))
 
 export const api_router = (timeout_ms: number = 30 * 1000, max_size: number = 10 * 1024 * 1024) =>
     new Router({
@@ -100,7 +100,7 @@ export const api_router = (timeout_ms: number = 30 * 1000, max_size: number = 10
 
             ctx.response.body = `${num_added} image(s) submitted to the queue`
         })
-        .get("/dino", (ctx) => {
-            ctx.response.body = dino_png
-            ctx.response.type = "image/png"
-        })
+// .get("/dino", (ctx) => {
+//     ctx.response.body = dino_png
+//     ctx.response.type = "image/png"
+// })
