@@ -11,7 +11,7 @@ export function fitting_size([width, height]: [number, number], max_width: numbe
         const new_major = Math.floor(major * (new_minor / minor))
         return {
             size: [new_minor, new_major],
-            rotated: width > max_width,
+            rotated: width > height,
         }
     }
 }
