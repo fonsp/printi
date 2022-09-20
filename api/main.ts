@@ -11,6 +11,15 @@ const app = new Application()
 app.use(async (ctx, next) => {
     await next()
     ctx.response.headers.set("Access-Control-Allow-Origin", "*")
+    if (ctx.request.headers.has("Access-Control-Request-Method")) {
+        ctx.response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    }
+    if (ctx.request.headers.has("Access-Control-Request-Headers")) {
+        ctx.response.headers.set(
+            "Access-Control-Allow-Headers",
+            ctx.request.headers.get("Access-Control-Request-Headers") ?? "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        )
+    }
 })
 
 // Use our API router
