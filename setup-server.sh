@@ -1,18 +1,23 @@
 #!/bin/sh
 
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-sudo apt update
-sudo apt install mono-complete nuget chromium-browser
+# FYI i never tried this script, but i hope it works!
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install unzip
+
+wget https://github.com/denoland/deno/releases/download/v1.25.3/deno-x86_64-unknown-linux-gnu.zip -O temp.zip
+unzip temp.zip
+
+sudo mv ./deno /bin/deno
+rm temp.zip
 
 cd /bin/
-git clone https://github.com/fons-/printi.git
+git clone https://github.com/fonsp/printi.git
 cd printi
-nuget restore
-msbuild
 
-cp printi.service /etc/systemd/system/
-systemctl start printi
-systemctl enable printi
+sudo cp printi.service /etc/systemd/system/
+sudo systemctl start printi
+sudo systemctl enable printi
 
 sudo reboot

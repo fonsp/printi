@@ -1,0 +1,11 @@
+{
+    "deno.enable": true,
+    "deno.lint": true,
+    "deno.unstable": false,
+    "deno.config": "api/deno.jsonc",
+    "prettier.singleQuote": false,
+    "[typescript]": {
+        "editor.formatOnSave": true,
+    },
+    "deno.codeLens.test": true
+}

@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "deno",
+			"command": "test",
+			"args": ["--allow-all"],
+			"problemMatcher": [
+				"$deno-test"
+			],
+			"group": "test",
+			"label": "Test API server"
+		},
+		
+	]
+}

@@ -5,9 +5,8 @@ After=systemd-user-sessions.service
 After=network-online.target
 
 [Service]
-WorkingDirectory=/bin/printi/PoloreceiptServer/bin/Debug
-Environment=PORT=80
-ExecStart=/usr/bin/mono PoloreceiptServer.exe &
+WorkingDirectory=/bin/printi/api
+ExecStart=/bin/deno run --allow-net main.ts --port=80 &
 TimeoutSec=30
 Restart=on-failure
 RestartSec=5
