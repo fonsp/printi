@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void writeInt(uint x){
+void writeInt(unsigned int x){
 	/*for(int i = 0; i < 4; i++){
 		putchar(x && 0xff);
 		x = x >> 8;
@@ -10,8 +10,8 @@ void writeInt(uint x){
 }
 
 int main(){
-	uint imageHeight = 0;
-	uint imageWidth = 384;
+	unsigned int imageHeight = 0;
+	unsigned int imageWidth = 384;
 
 	char* imgData = malloc(24 * imageWidth / 8);
 
@@ -30,12 +30,12 @@ int main(){
 		// start of new line
 		a = getchar();
 		b = getchar();
-		uint bytesPerLine = a + 256*b;
+		unsigned int bytesPerLine = a + 256*b;
 		//imageWidth = bytesPerLine * 8;
 
 		a = getchar();
 		b = getchar();
-		uint sliceHeight = a + 256*b;
+		unsigned int sliceHeight = a + 256*b;
 
 		char* imgDataNew = realloc(imgData, (imageHeight + sliceHeight) * imageWidth / 8);
 		if(imgDataNew){
@@ -66,7 +66,7 @@ int main(){
 
 	// FILE HEADER
 	printf("BM");
-	uint filesize = 14 + 40 + 8 + imageHeight * imageWidth / 8;
+	unsigned int filesize = 14 + 40 + 8 + imageHeight * imageWidth / 8;
 	writeInt(filesize);
 	writeInt(0); // unused
 	writeInt(14 + 40 + 8); // offset
