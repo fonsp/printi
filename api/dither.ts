@@ -1,6 +1,7 @@
 import canvasdither from "https://esm.sh/canvas-dither@1.0.1?pin=v95"
 import { createCanvas, ImageData, loadImage } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
 
+
 import { fitting_size } from "./resize.ts"
 import { imagedata_to_bwimage } from "./BWImage.ts"
 
@@ -22,8 +23,19 @@ export const dither_bytes_to_imagedata = async (img_contents: Uint8Array, max_wi
         ctx.drawImage(img, 0, 0, ...size)
     }
 
-    const input_img_data = ctx.getImageData(0, 0, ...size)
-    const output_img_data: ImageData = canvasdither.floydsteinberg(input_img_data)
+
+    const img_data = ctx.getImageData(0, 0, ...size)
+
+    // Gamma correction to brighten, required to make it come
+    // out alright on the printi
+    const f = (x: number) => 255 * Math.sqrt(x / 255)
+    for (let i = 0, n = img_data.data.length; i < n; i=i+4) {
+        img_data.data[i] = f(img_data.data[i])
+        img_data.data[i+1] = f(img_data.data[i+1])
+        img_data.data[i+2] = f(img_data.data[i+2])
+    }
+
+    const output_img_data: ImageData = canvasdither.floydsteinberg(img_data)
     return {
         imagedata: output_img_data,
         canvas,
