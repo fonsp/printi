@@ -7,6 +7,10 @@ import sys
 import subprocess
 import datetime
 
+
+PRINTI_API_SERVER_BASE_URL = "https://api.printi.me"
+
+
 printerPath = "nul"  # win
 printerPaths = ["/dev/null", "/dev/usb/lp1", "/dev/usb/lp0"]
 if len(sys.argv) > 1:
@@ -75,7 +79,7 @@ def waitForPrintiConnection(firstGoogleFailure=True, firstPrintiFailure=True):
 	while True:
 		if ping("https://www.google.com/", 10) or ping("https://www.google.com/", 10):
 			shouldPrintDetailedInstructions = False
-			if ping("https://api.printi.me/", 10):
+			if ping(PRINTI_API_SERVER_BASE_URL, 10):
 				return firstGoogleFailure
 			else:
 				if firstPrintiFailure:
@@ -184,7 +188,10 @@ while True:
 		printerName = urllib.parse.unquote(config["printi"]["name"])
 
 		lastOnlineAt = datetime.datetime.now()
-		r = session.get("https://api.printi.me/nextinqueue/"+printerName, timeout=40)
+		r = session.get(
+				PRINTI_API_SERVER_BASE_URL + "/nextinqueue/" + printerName,
+				timeout=40)
+
 		print("response!")
 		print(r.status_code)
 		if r.status_code == 200:
