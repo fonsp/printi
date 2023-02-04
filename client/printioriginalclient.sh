@@ -5,7 +5,7 @@ cd tmp
 
 while true
 do
-	if (wget --header="Accept: text/html,image/png" --content-disposition --trust-server-names api.printi.me/nextinqueue)
+	if (wget --header="Accept: text/html,image/png" --content-disposition --trust-server-names --quiet api.printi.me/nextinqueue)
 	then
 		downloadedfile=$(ls)
 
