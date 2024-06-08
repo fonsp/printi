@@ -3,6 +3,7 @@
 
 here=$(dirname $(readlink -f $0))
 
+! rm -rf tmp
 ! mkdir tmp
 cd tmp
 
