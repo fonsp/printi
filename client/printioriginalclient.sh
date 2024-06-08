@@ -14,7 +14,11 @@ do
 
 		mv "./$downloadedfile" ../$newname
 
-		#! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
+		# ! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
+		
+		python /home/fons/.env/bin/python printioriginalprintcommand.py ../$newname
+		continue
+		
 		convert ../$newname -rotate "90>" ../toprint.PNG
 
 		height=$(identify -format "%h" ../toprint.PNG)
