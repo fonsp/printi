@@ -3,9 +3,9 @@
 
 here=$(dirname $(readlink -f $0))
 
-! rm -rf tmp
-! mkdir tmp
-cd tmp
+! rm -rf printitmp
+! mkdir printitmp
+cd printitmp
 
 while true
 do
