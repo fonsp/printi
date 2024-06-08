@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-here=$(pwd)
+here=$(dirname $(readlink -f $0))
 
 ! mkdir tmp
 cd tmp
