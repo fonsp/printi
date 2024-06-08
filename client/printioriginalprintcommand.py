@@ -11,5 +11,5 @@ image = Image.open(image_path)
 
 raster = StarTSPImage.imageToRaster(image, cut=True)
 
-with open('/dev/usb/lp0', "wb") as printer
+with open('/dev/usb/lp0', "wb") as printer:
     printer.write(raster)
