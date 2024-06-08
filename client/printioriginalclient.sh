@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+here=$(pwd)
+
 ! mkdir tmp
 cd tmp
 
@@ -16,7 +19,7 @@ do
 
 		# ! python normalize_quantiles.py "$tmpdir$downloadedfile" "$tmpdirNORM$downloadedfile"
 		
-		/home/fons/.env/bin/python printioriginalprintcommand.py ../$newname
+		/home/fons/.env/bin/python "$here/printioriginalprintcommand.py" ../$newname
 		continue
 		
 		convert ../$newname -rotate "90>" ../toprint.PNG
