@@ -1,7 +1,9 @@
 import StarTSPImage
 from PIL import Image, ImageDraw
 
-assert sys.argv.length == 2
+import sys
+
+assert len(sys.argv) == 2
 
 image_path = sys.argv[-1]
 
