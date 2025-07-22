@@ -344,6 +344,17 @@
 		<a href="https://github.com/fons-/printi/blob/master/README.md" rel="help">What is printi?</a>
 	</footer>
 
+	<!-- The outer div will be unhidden when the platform qualifies for installation -->
+	<div id="pwa-installable" style="display: none;">
+		<!-- The inner div will be unhidden after a printi has been sent -->
+		<div id="first-printi-sent" style="display: none;">
+			<div id="install-box" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #fff8f0; border-radius: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 22px 28px 18px 28px; width: 320px; max-width: 90vw; z-index: 1000; font-family: 'Itim', 'Courgette', sans-serif; font-size: 1.08em; color: #3a2c1a; text-align: center;" >
+				<p style="margin: 0 0 16px 0;">Do you want to install <span style="font-style: italic;">{{PRINTER_NAME}}</span> to your phone to easily send photos to your printi friends from other apps?</p>
+				<button style="background: #ffe3e3; color: #3a2c1a; border: none; border-radius: 12px; padding: 10px 32px; font-size: 1.1em; font-family: inherit; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.04); transition: background 0.2s;" onmouseover="this.style.background='#ffd6d6'" onmouseout="this.style.background='#ffe3e3'">Yes!</button>
+			</div>
+		</div>
+	</div>
+
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
 
@@ -460,6 +471,8 @@
 						setTimeout(function() {
 							//TODO: remove el
 							document.querySelector("#receiptstack").removeChild(receiptEl);
+							// Unhide the install box after the first printi is sent
+							document.getElementById('first-printi-sent').style.display = 'block';
 						}, 2000);
 					}, 1000);
 				};
@@ -679,7 +692,33 @@
 
 				uploadImage(null, video);
 			};
+
 		});
+
+		window.addEventListener('beforeinstallprompt', (event) => {
+			// Only proceed if running on Android
+			if (!/android/i.test(navigator.userAgent)) return;
+			// Prevent the mini-infobar from appearing on mobile.
+			event.preventDefault();
+			// Stash the event so it can be triggered later.
+			window.deferredInstallPrompt = event;
+			// Unhide the 'pwa-installable' div.
+			document.getElementById('pwa-installable').style.display = 'block';
+
+			// Add event listener to the Yes button
+			var yesButton = document.querySelector('#install-box button');
+			if (yesButton) {
+				yesButton.addEventListener('click', function() {
+					if (window.deferredInstallPrompt) {
+						window.deferredInstallPrompt.prompt();
+						window.deferredInstallPrompt = null;
+					}
+					// Remove the install box from the DOM
+					document.getElementById('install-box').remove();
+				});
+			}
+		});
+
 	</script>
 	<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </body>
