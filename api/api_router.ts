@@ -11,6 +11,14 @@ import { Handlebars } from "./imports/handlebars.ts"
 
 const printer_size = (name: string) => (name === "printi" ? 576 : 384)
 
+// Shared Handlebars instance
+const handlebars = new Handlebars({
+    baseDir: "./templates",
+    extname: ".hbs",
+    partialsDir: "", // Disable partials
+    defaultLayout: "" // Disable layouts
+})
+
 export const api_queue = new Queue<BWImage>()
 
 export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer())
@@ -133,23 +141,17 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
                 console.debug("/submitimages/: Unknown body type: ", body.type, value)
             }
 
-            ctx.response.body = `${num_added} image(s) submitted to the queue`
+            ctx.response.type = "text/html"
+            ctx.response.body = "<html><body><h1>Printi is printing!</h1><script>setTimeout(() => { window.close() }, 2000)</script></body></html>"
         })
         .get(["/:printername", "/"], async (ctx) => {
             const printer_name = ctx.params.printername ?? "printi"
             const server_base_url = get_server_base_url(ctx)
-            try {
-                const handle = new Handlebars({
-                    baseDir: "./templates",
-                    extname: ".html.hbs",
-                    partialsDir: "", // Disable partials
-                    defaultLayout: "" // Disable layouts
-                })
-                const rendered = await handle.renderView("printer", { PRINTER_NAME: printer_name, SERVER_BASE_URL: server_base_url })
-                ctx.response.body = rendered
-                ctx.response.type = "text/html"
-            } catch (e) {
-                ctx.response.body = `Template not found: ${e.message}`
-                ctx.response.status = 500
-            }
+            ctx.response.body = await handlebars.renderView("printer.html", { PRINTER_NAME: printer_name, SERVER_BASE_URL: server_base_url })
+            ctx.response.type = "text/html"
+        })
+        .get("/:printername/manifest.json", async (ctx) => {
+            const printer_name = ctx.params.printername ?? "printi"
+            ctx.response.body = await handlebars.renderView("manifest.json", { PRINTER_NAME: printer_name })
+            ctx.response.type = "application/manifest+json"
         })
