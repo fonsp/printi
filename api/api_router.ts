@@ -7,6 +7,7 @@ import { dither_bytes_to_bwimage } from "./dither.ts"
 
 import { Queue } from "./queue.ts"
 import { to_png, to_h58 } from "./h58.ts"
+import { Handlebars } from "./imports/handlebars.ts"
 
 const printer_size = (name: string) => (name === "printi" ? 576 : 384)
 
@@ -23,9 +24,6 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
     new Router({
         // prefix: "/api",
     })
-        .get("/", (ctx) => {
-            ctx.response.body = "it's api time!!!!!"
-        })
         .get("/makecoffee", (ctx) => {
             ctx.response.body = "sorry :( 🙅☕ "
             ctx.response.status = 418
@@ -117,7 +115,20 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
 
             ctx.response.body = `${num_added} image(s) submitted to the queue`
         })
-// .get("/dino", (ctx) => {
-//     ctx.response.body = dino_png
-//     ctx.response.type = "image/png"
-// })
+        .get(["/:printername", "/"], async (ctx) => {
+            const printer_name = ctx.params.printername ?? "printi"
+            try {
+                const handle = new Handlebars({
+                    baseDir: "./templates",
+                    extname: ".html.hbs",
+                    partialsDir: "", // Disable partials
+                    defaultLayout: "" // Disable layouts
+                })
+                const rendered = await handle.renderView("printer", { PRINTER_NAME: printer_name })
+                ctx.response.body = rendered
+                ctx.response.type = "text/html"
+            } catch (e) {
+                ctx.response.body = `Template not found: ${e.message}`
+                ctx.response.status = 500
+            }
+        })

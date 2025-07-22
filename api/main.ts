@@ -22,18 +22,27 @@ app.use(async (ctx, next) => {
     }
 })
 
+// Serve static files
+app.use(async (ctx, next) => {
+    if (ctx.request.url.pathname.startsWith("/static/")) {
+        try {
+            await ctx.send({
+                root: `./static`,
+                path: ctx.request.url.pathname.substring("/static/".length),
+            })
+        } catch {
+            // file not found, fall through to next middleware
+            await next()
+        }
+    } else {
+        await next()
+    }
+})
+
 // Use our API router
 const router = api_router({ inspection_password: password })
 app.use(router.routes())
 app.use(router.allowedMethods())
-
-// Send static content
-// app.use(async (context) => {
-//     await context.send({
-//         root: `${Deno.cwd()}/api/static`,
-//         index: "index.html",
-//     })
-// })
 
 // 404 message (only runs if the router did not match)
 app.use((ctx) => {
