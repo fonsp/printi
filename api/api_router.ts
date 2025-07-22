@@ -20,6 +20,26 @@ export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fe
 //     .then((r) => to_png(r))
 //     .catch(() => new Uint8Array([]))
 
+// Helper to determine the server base URL
+function get_server_base_url(ctx: any): string {
+    // Try env var first
+    const env_url = Deno.env.get("PRINTI_SERVER_BASE_URL")
+    if (env_url) {
+        return env_url
+    }
+
+    // Try first from reverse proxy headers, then from request URL
+    const forwarded_host = ctx.request.headers.get("x-forwarded-host")
+    if (forwarded_host) {
+        // If it's gone through a reverse proxy, assume HTTPS
+        // instead of relying on X-Forwarded-Proto, which only some seem to set.
+        return `https://${forwarded_host}`
+    }
+
+    // Fallback to request URL
+    return ctx.request.url.protocol.replace(":", "") + "//" + ctx.request.url.host
+}
+
 export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024, inspection_password = crypto.randomUUID() } = {}) =>
     new Router({
         // prefix: "/api",
@@ -117,6 +137,7 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
         })
         .get(["/:printername", "/"], async (ctx) => {
             const printer_name = ctx.params.printername ?? "printi"
+            const server_base_url = get_server_base_url(ctx)
             try {
                 const handle = new Handlebars({
                     baseDir: "./templates",
@@ -124,7 +145,7 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
                     partialsDir: "", // Disable partials
                     defaultLayout: "" // Disable layouts
                 })
-                const rendered = await handle.renderView("printer", { PRINTER_NAME: printer_name })
+                const rendered = await handle.renderView("printer", { PRINTER_NAME: printer_name, SERVER_BASE_URL: server_base_url })
                 ctx.response.body = rendered
                 ctx.response.type = "text/html"
             } catch (e) {

@@ -466,7 +466,7 @@
 				xhr.onerror = console.log;
 				xhr.onabort = console.log;
 				
-				const api_server = window.printi_api_server ?? "https://api.printi.me"
+				const api_server = "{{ SERVER_BASE_URL }}"
 				const printi_name = "{{PRINTER_NAME}}"
 
 				console.log("Sending to ", new URL(`submitimages/${printi_name}`, api_server))
