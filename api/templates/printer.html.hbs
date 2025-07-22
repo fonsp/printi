@@ -292,7 +292,9 @@
 <body>
 	<header>
 		<div id="logocontainer">
-			<h1><img src="static/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi" /><span id="printernametitle"></span></h1>
+			<h1>
+				<img src="static/printi_logo_transparent.svg" width="100" height="34" alt="printi" title="printi" /><span id="printernametitle">/{{PRINTER_NAME}}</span>
+			</h1>
 		</div>
 		<div id="cameracontainer" class="titlesecret">
 			<div id="videoscreen">
@@ -357,9 +359,6 @@
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
-
-			// Set the printer name from the server-side template variable
-			document.querySelector("#printernametitle").textContent = "/{{PRINTER_NAME}}"
 
 			if (window.location.search.indexOf("log") != -1) {
 				if (typeof console != "undefined")
