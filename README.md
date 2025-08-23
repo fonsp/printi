@@ -1,3 +1,11 @@
+# OLD REPOSITORY
+
+We have moved this to Codeberg:
+
+https://codeberg.org/printi/printi
+
+☝☝☝☝☝ GO HERE
+
 # printi
 Visit [printi.me](https://printi.me/)!
 
