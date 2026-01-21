@@ -1,0 +1,35 @@
+{
+  "name": "printi {{PRINTER_NAME}}",
+  "short_name": "{{PRINTER_NAME}}",
+  "description": "The world's fastest photo printer!",
+  "start_url": "/{{PRINTER_NAME}}",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/static/banner.svg",
+      "purpose": "maskable any",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/banner.svg",
+      "type": "image/svg+xml",
+      "sizes": "1200x1200"
+    }
+  ],
+  "share_target": {
+    "action": "/submitimages/{{PRINTER_NAME}}",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "file",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  }
+} 

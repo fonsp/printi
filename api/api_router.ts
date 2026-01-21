@@ -7,8 +7,17 @@ import { dither_bytes_to_bwimage } from "./dither.ts"
 
 import { Queue } from "./queue.ts"
 import { to_png, to_h58 } from "./h58.ts"
+import { Handlebars } from "./imports/handlebars.ts"
 
 const printer_size = (name: string) => (name === "printi" ? 576 : 384)
+
+// Shared Handlebars instance
+const handlebars = new Handlebars({
+    baseDir: "./templates",
+    extname: ".hbs",
+    partialsDir: "", // Disable partials
+    defaultLayout: "" // Disable layouts
+})
 
 export const api_queue = new Queue<BWImage>()
 
@@ -19,13 +28,30 @@ export const fetch_uint8 = async (url: string) => new Uint8Array(await (await fe
 //     .then((r) => to_png(r))
 //     .catch(() => new Uint8Array([]))
 
+// Helper to determine the server base URL
+function get_server_base_url(ctx: any): string {
+    // Try env var first
+    const env_url = Deno.env.get("PRINTI_SERVER_BASE_URL")
+    if (env_url) {
+        return env_url
+    }
+
+    // Try first from reverse proxy headers, then from request URL
+    const forwarded_host = ctx.request.headers.get("x-forwarded-host")
+    if (forwarded_host) {
+        // If it's gone through a reverse proxy, assume HTTPS
+        // instead of relying on X-Forwarded-Proto, which only some seem to set.
+        return `https://${forwarded_host}`
+    }
+
+    // Fallback to request URL
+    return ctx.request.url.protocol.replace(":", "") + "//" + ctx.request.url.host
+}
+
 export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024, inspection_password = crypto.randomUUID() } = {}) =>
     new Router({
         // prefix: "/api",
     })
-        .get("/", (ctx) => {
-            ctx.response.body = "it's api time!!!!!"
-        })
         .get("/makecoffee", (ctx) => {
             ctx.response.body = "sorry :( 🙅☕ "
             ctx.response.status = 418
@@ -115,9 +141,17 @@ export const api_router = ({ timeout_ms = 30 * 1000, max_size = 10 * 1024 * 1024
                 console.debug("/submitimages/: Unknown body type: ", body.type, value)
             }
 
-            ctx.response.body = `${num_added} image(s) submitted to the queue`
+            ctx.response.type = "text/html"
+            ctx.response.body = "<html><body><h1>Printi is printing!</h1><script>setTimeout(() => { window.close() }, 2000)</script></body></html>"
         })
-// .get("/dino", (ctx) => {
-//     ctx.response.body = dino_png
-//     ctx.response.type = "image/png"
-// })
+        .get(["/:printername", "/"], async (ctx) => {
+            const printer_name = ctx.params.printername ?? "printi"
+            const server_base_url = get_server_base_url(ctx)
+            ctx.response.body = await handlebars.renderView("printer.html", { PRINTER_NAME: printer_name, SERVER_BASE_URL: server_base_url })
+            ctx.response.type = "text/html"
+        })
+        .get("/:printername/manifest.json", async (ctx) => {
+            const printer_name = ctx.params.printername ?? "printi"
+            ctx.response.body = await handlebars.renderView("manifest.json", { PRINTER_NAME: printer_name })
+            ctx.response.type = "application/manifest+json"
+        })
